@@ -1,0 +1,533 @@
+fileFormatVersion: 2
+guid: b53fa1aa8f501d641afef77e5a88bd2b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4682848544385511841
+    second: Son_Happy_0
+  - first:
+      213: -5069615458340544033
+    second: Son_Happy_1
+  - first:
+      213: -3309011548289167702
+    second: Son_Happy_2
+  - first:
+      213: 6473853529435039150
+    second: Son_Happy_3
+  - first:
+      213: -6811335165907864782
+    second: Son_Happy_4
+  - first:
+      213: 3222404797117090591
+    second: Son_Happy_5
+  - first:
+      213: 5095136610010398844
+    second: Son_Happy_6
+  - first:
+      213: -8708215785693767751
+    second: Son_Happy_7
+  - first:
+      213: 7460060182206608214
+    second: Son_Happy_8
+  - first:
+      213: -3817358679675986273
+    second: Son_Happy_9
+  - first:
+      213: -4511958454321686630
+    second: Son_Happy_10
+  - first:
+      213: 3436049272853974304
+    second: Son_Happy_11
+  - first:
+      213: 2056721672442145017
+    second: Son_Happy_12
+  - first:
+      213: -7657590577132843892
+    second: Son_Happy_13
+  - first:
+      213: 646538828594258418
+    second: Son_Happy_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Son_Happy_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1262
+        width: 735
+        height: 255
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5e42f64f0e230fb0800000000000000
+      internalID: -4682848544385511841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_1
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 1334
+        width: 34
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd168c1c99b15a9b0800000000000000
+      internalID: -5069615458340544033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_2
+      rect:
+        serializedVersion: 2
+        x: 752
+        y: 1329
+        width: 105
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aae0f8a57870412d0800000000000000
+      internalID: -3309011548289167702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_3
+      rect:
+        serializedVersion: 2
+        x: 888
+        y: 1262
+        width: 506
+        height: 272
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea562ed2c7fb7d950800000000000000
+      internalID: 6473853529435039150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_4
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 1262
+        width: 140
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2337fed21c64971a0800000000000000
+      internalID: -6811335165907864782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_5
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1182
+        width: 162
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1bcda6071848bc20800000000000000
+      internalID: 3222404797117090591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_6
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 702
+        width: 489
+        height: 555
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7002c960cf85b640800000000000000
+      internalID: 5095136610010398844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_7
+      rect:
+        serializedVersion: 2
+        x: 652
+        y: 702
+        width: 199
+        height: 548
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b7164a81e3362780800000000000000
+      internalID: -8708215785693767751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_8
+      rect:
+        serializedVersion: 2
+        x: 853
+        y: 633
+        width: 574
+        height: 549
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 653f57be535778760800000000000000
+      internalID: 7460060182206608214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_9
+      rect:
+        serializedVersion: 2
+        x: 1427
+        y: 1094
+        width: 88
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e98ad8184060bc0800000000000000
+      internalID: -3817358679675986273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_10
+      rect:
+        serializedVersion: 2
+        x: 1427
+        y: 864
+        width: 87
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a97d5d0f0bd4261c0800000000000000
+      internalID: -4511958454321686630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_11
+      rect:
+        serializedVersion: 2
+        x: 1427
+        y: 637
+        width: 103
+        height: 227
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02d4333db9c4faf20800000000000000
+      internalID: 3436049272853974304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_12
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 2
+        width: 850
+        height: 699
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f8e2cfc671fa8c10800000000000000
+      internalID: 2056721672442145017
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_13
+      rect:
+        serializedVersion: 2
+        x: 1435
+        y: 633
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8c4e9611f5cab590800000000000000
+      internalID: -7657590577132843892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Son_Happy_14
+      rect:
+        serializedVersion: 2
+        x: 854
+        y: 2
+        width: 673
+        height: 630
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f1abdb93a7f8f800800000000000000
+      internalID: 646538828594258418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Son_Happy_0: -4682848544385511841
+      Son_Happy_1: -5069615458340544033
+      Son_Happy_10: -4511958454321686630
+      Son_Happy_11: 3436049272853974304
+      Son_Happy_12: 2056721672442145017
+      Son_Happy_13: -7657590577132843892
+      Son_Happy_14: 646538828594258418
+      Son_Happy_2: -3309011548289167702
+      Son_Happy_3: 6473853529435039150
+      Son_Happy_4: -6811335165907864782
+      Son_Happy_5: 3222404797117090591
+      Son_Happy_6: 5095136610010398844
+      Son_Happy_7: -8708215785693767751
+      Son_Happy_8: 7460060182206608214
+      Son_Happy_9: -3817358679675986273
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

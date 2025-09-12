@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainScreenScene.unity
+    guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Dad/FatherMemoryScene.unity
+    guid: a3d9e0f84dfd5f8429249ee68a49599b
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Mom/MotherMemoryScene.unity
+    guid: 2c3388df12c81294ba638a5edfd7f8a5
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Dad/FatherMemoryScene2.unity
+    guid: 0980a3ef53d1dce4aa875f5584d39d85
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Son/SonMemoryScene.unity
+    guid: 5cfa70f309d5f2e4ab6500233ba12b84
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Dad/FatherMemoryScene3.unity
+    guid: 9feed95f597c70b44b1e60aadf10754e
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Mom/MotherMemoryScene2.unity
+    guid: 74a492cfaa02bad46acb0fb6deb89c34
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Mom/MotherMemoryScene3.unity
+    guid: 27d2b4d0116b4b7409fda67253b748bd
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Son/SonMemoryScene2.unity
+    guid: eb045a8fd0faebb48a222eb6c69c1341
+  - enabled: 1
+    path: Assets/Scenes/Memory/Memory_Son/SonMemoryScene3.unity
+    guid: faa0f6d4690197945bdf20a27fa4acf9
+  - enabled: 1
+    path: Assets/Scenes/Memory/MemoryScene.unity
+    guid: f2507b63c1ae5f94190173c2d1c6518c
+  - enabled: 1
+    path: Assets/Scenes/Game/BeforeStartCutScene.unity
+    guid: 28d4034d5c9c0b740956a0f7ee08be6a
+  - enabled: 1
+    path: Assets/Scenes/Game/Dialogue/0-0.unity
+    guid: 75d2fbb04b0c41f4dbb56d870ad19573
+  - enabled: 1
+    path: Assets/Scenes/Game/GameScene.unity
+    guid: f559c36802e3bef499b8455a032ffcec
+  - enabled: 1
+    path: Assets/Scenes/Game/Dialogue/1-0.unity
+    guid: c0548eefe64dd904dbc20ebe4836919c
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-1.unity
+    guid: 0c7f5e08e87870348813f5fb08d484b1
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-1Cutscene.unity
+    guid: 598fe9488126dbc418aad2eef7bebd26
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-2.unity
+    guid: d92880396b1593545bc0cfe0e95b31d3
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-2Cutscene.unity
+    guid: 7fa687fb8fca13f4094a354441db67c3
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-3.unity
+    guid: df2c451a8f6ff5742bdc6e881ab204a2
+  - enabled: 1
+    path: Assets/Scenes/Game/Stage1-b/1-3Cutscene.unity
+    guid: 3d35228eb31fc5248936507d0e3ebe41
+  - enabled: 1
+    path: Assets/Scenes/Game/Dialogue/1-0a.unity
+    guid: f86b44811dca3054589b8e11c83018d1
+  - enabled: 1
+    path: Assets/Scenes/Game/Dialogue/0-0-1a.unity
+    guid: 3746be4a3c4d11a46936cb1f083ddade
+  - enabled: 1
+    path: Assets/Scenes/Game/GameScene-a/GameScene-1a.unity
+    guid: b0c24a4df729aa4439729e2be7bfe1cc
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  m_UseUCBPForAssetBundles: 0
