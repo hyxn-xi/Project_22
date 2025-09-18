@@ -9,6 +9,7 @@ using UnityEngine;
 /// - 웨이포인트는 월드 좌표로 캐시
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
+[DisallowMultipleComponent]
 public class MovingPlatform2D : MonoBehaviour
 {
     [Header("Path")]
@@ -28,7 +29,7 @@ public class MovingPlatform2D : MonoBehaviour
 
     [Header("Passengers")]
     public string playerTag = "Player"; // 플레이어 태그
-    public bool parentPassenger = true; // 위에 올라오면 부모로 붙이기 (※ PlayerController가 '델타로 태우기'를 쓰면 끄세요)
+    public bool parentPassenger = false; // ★ PlayerController가 델타 태우기면 false 권장
 
     // --- 내부 상태
     readonly List<Vector3> cachedWorldPoints = new List<Vector3>();
@@ -36,7 +37,7 @@ public class MovingPlatform2D : MonoBehaviour
     int dir = 1; // +1 정방향, -1 역방향
     Coroutine runner;
 
-    const float EPS = 0.00001f;
+    const float EPS = 0.00004f; // 도착 판정
 
     void Reset()
     {
@@ -51,6 +52,8 @@ public class MovingPlatform2D : MonoBehaviour
         r.bodyType = RigidbodyType2D.Kinematic;
         r.gravityScale = 0f;
         r.constraints = RigidbodyConstraints2D.FreezeRotation;
+        r.interpolation = RigidbodyInterpolation2D.Interpolate; // 렌더 보간
+        rb = r;
     }
 
     void Awake()
@@ -61,7 +64,8 @@ public class MovingPlatform2D : MonoBehaviour
             rb.bodyType = RigidbodyType2D.Kinematic;
             rb.gravityScale = 0f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 렌더 보간
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            rb.useFullKinematicContacts = true; // 접촉 안정화
         }
     }
 
@@ -112,10 +116,15 @@ public class MovingPlatform2D : MonoBehaviour
             while ((transform.position - target).sqrMagnitude > EPS)
             {
                 Vector3 cur = transform.position;
-                Vector3 next = Vector3.MoveTowards(cur, target, speed * Time.deltaTime);
+                float dist = Vector3.Distance(cur, target);
+                float step = Mathf.Min(speed * Time.deltaTime, dist);
+                Vector3 next = Vector3.MoveTowards(cur, target, step);
                 transform.position = next;
                 yield return null; // 렌더 프레임
             }
+
+            // 최종 스냅(잔여 오차 제거)
+            transform.position = target;
 
             currentIndex = nextIndex;
             UpdateDirAfterArrive();
@@ -137,10 +146,19 @@ public class MovingPlatform2D : MonoBehaviour
             while (((Vector2)rb.position - (Vector2)target).sqrMagnitude > EPS)
             {
                 Vector2 cur = rb.position;
-                Vector2 next = Vector2.MoveTowards(cur, (Vector2)target, speed * Time.fixedDeltaTime);
+                Vector2 to = (Vector2)target - cur;
+                float dist = to.magnitude;
+                if (dist <= EPS) break;
+
+                float step = Mathf.Min(speed * Time.fixedDeltaTime, dist);
+                Vector2 next = cur + to / dist * step;
+
                 rb.MovePosition(next);
                 yield return new WaitForFixedUpdate(); // ★ 물리 프레임
             }
+
+            // 최종 스냅(잔여 오차 제거)
+            rb.position = target;
 
             currentIndex = nextIndex;
             UpdateDirAfterArrive();

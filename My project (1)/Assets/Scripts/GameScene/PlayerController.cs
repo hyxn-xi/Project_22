@@ -58,7 +58,9 @@ public class PlayerController : MonoBehaviour
     public bool alwaysIdleOnPlatforms = true;           // 무빙플랫폼 위에선 Walk 끄기
     public bool treatMovingPlatformAsGround = true;     // 무빙플랫폼을 '지면'으로 인정
     Transform currentPlatform = null;
-    Vector3 lastPlatformPos;
+    Rigidbody2D currentPlatformRB = null;               // ★ RB기반 델타용
+    Vector2 lastPlatformRBPos;
+    Vector3 lastPlatformPos;                            // (RB가 없을 때만 사용)
     Vector2 platformVelocity = Vector2.zero;
     bool onMovingPlatformGround = false;                // 발 밑이 무빙플랫폼인지
 
@@ -105,6 +107,7 @@ public class PlayerController : MonoBehaviour
 
     // --- State
     float moveInput;
+    int pendingFaceDir = 1; // Update에서 결정 → FixedUpdate에서만 적용
     bool isDead = false;
     bool pickupLock = false;
 
@@ -159,6 +162,9 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         if (groundLayer.value == 0) groundLayer = LayerMask.GetMask("Ground");
 
+        // 렌더 보간 권장
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
         if (!gameOver)
             gameOver = FindFirstObjectByType<GameOverController>(FindObjectsInactive.Include);
     }
@@ -170,6 +176,9 @@ public class PlayerController : MonoBehaviour
         anim.ResetTrigger(DoubleJumpTrgHash);
         anim.ResetTrigger(HitTrgHash);
         anim.SetBool(DeadBoolHash, false);
+
+        // 시작 방향(스케일) 보정
+        pendingFaceDir = Mathf.Sign(transform.localScale.x) >= 0f ? 1 : -1;
 
         if (debugAnim && anim != null)
         {
@@ -186,20 +195,20 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead || pickupLock) return;
 
+        // --- 입력만 읽는다 (트랜스폼/리짓 바꾸지 않음) ---
         moveInput = 0f;
         if (Input.GetKey(KeyCode.A)) moveInput -= 1f;
         if (Input.GetKey(KeyCode.D)) moveInput += 1f;
 
+        // 착지 연출 중엔 수평 입력 무시
         if (freezeHorizontalOnLanding && Time.time < landingHoldUntil)
             moveInput = 0f;
 
-        if (moveInput != 0f)
-        {
-            var s = transform.localScale;
-            s.x = Mathf.Abs(s.x) * (moveInput > 0f ? 1f : -1f);
-            transform.localScale = s;
-        }
+        // 방향(스케일X) 결정만 해두고, 실제 반영은 FixedUpdate에서
+        if (moveInput > 0.01f) pendingFaceDir = 1;
+        else if (moveInput < -0.01f) pendingFaceDir = -1;
 
+        // 점프 입력
         if (Input.GetKeyDown(KeyCode.Space))
         {
             bool canFirst = (isGrounded || Time.time - lastGroundedTime <= coyoteTime) && jumpCount == 0;
@@ -214,26 +223,48 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead || pickupLock) return;
 
+        // 1) 수평 속도
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
+        // 착지 연출 중엔 강제로 정지
         if (freezeHorizontalOnLanding && Time.time < landingHoldUntil)
             rb.velocity = new Vector2(0f, rb.velocity.y);
 
+        // 2) 무빙 플랫폼 델타를 RB 기준으로 더한다
         platformVelocity = Vector2.zero;
         if (ridePlatforms && currentPlatform != null && isGrounded)
         {
-            Vector3 platformDelta = currentPlatform.position - lastPlatformPos;
-            if (platformDelta.sqrMagnitude > 0f)
+            Vector2 delta;
+            if (currentPlatformRB)
             {
-                rb.position += (Vector2)platformDelta;
-                platformVelocity = (Vector2)(platformDelta / Time.fixedDeltaTime);
+                Vector2 p = currentPlatformRB.position;     // ★ RB 기준
+                delta = p - lastPlatformRBPos;
+                lastPlatformRBPos = p;
             }
-            lastPlatformPos = currentPlatform.position;
+            else
+            {
+                Vector2 p = currentPlatform.position;       // (RB 없을 때만 Transform)
+                delta = p - (Vector2)lastPlatformPos;
+                lastPlatformPos = currentPlatform.position;
+            }
+
+            if (delta.sqrMagnitude > 0f)
+            {
+                rb.position += delta;                       // 물리 프레임 내 RB 위치 보정
+                platformVelocity = delta / Time.fixedDeltaTime;
+            }
         }
 
+        // 3) 월드 경계 X 클램프
         var pos = rb.position;
         pos.x = Mathf.Clamp(pos.x, minX, maxX);
         rb.position = pos;
+
+        // 4) 방향(스케일X) 반영 — FixedUpdate에서만 Transform 수정
+        var s = transform.localScale;
+        float abs = Mathf.Abs(s.x);
+        s.x = abs * (pendingFaceDir >= 0 ? 1f : -1f);
+        transform.localScale = s;
     }
 
     void LateUpdate()
@@ -434,7 +465,9 @@ public class PlayerController : MonoBehaviour
                 if (mp != null)
                 {
                     currentPlatform = mp.transform;
-                    lastPlatformPos = currentPlatform.position;
+                    currentPlatformRB = mp.GetComponent<Rigidbody2D>();
+                    if (currentPlatformRB) lastPlatformRBPos = currentPlatformRB.position;
+                    else lastPlatformPos = currentPlatform.position;
                 }
                 return;
             }
@@ -444,6 +477,7 @@ public class PlayerController : MonoBehaviour
     void DetachFromPlatform()
     {
         currentPlatform = null;
+        currentPlatformRB = null;   // ★
         platformVelocity = Vector2.zero;
     }
 
