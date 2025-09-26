@@ -121,6 +121,8 @@ public class PlayerController : MonoBehaviour
     float landingHoldUntil = -1f;
     bool invulnHit = false;
 
+    public GameObject move;
+
     // 점프 직후 1~2프레임 강제 공중
     float jumpUngroundUntil = -1f;
 
