@@ -3,48 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ¿şÀÌÆ÷ÀÎÆ® »çÀÌ¸¦ ¿Õº¹ÇÏ´Â 2D ÀÌµ¿ ÇÃ·§Æû.
-/// - Collider2D ´Â "ºñÆ®¸®°Å=false" ¿©¾ß ÇÃ·¹ÀÌ¾î°¡ ¹âÀ» ¼ö ÀÖÀ½.
-/// - Rigidbody2D°¡ ÀÖÀ¸¸é Kinematic + ¹°¸® ÇÁ·¹ÀÓ ±â¹İ ÀÌµ¿(±ÇÀå)
-/// - ¿şÀÌÆ÷ÀÎÆ®´Â ¿ùµå ÁÂÇ¥·Î Ä³½Ã
+/// ì›¨ì´í¬ì¸íŠ¸ë¥¼ ì´ë™í•˜ëŠ” 2D í”Œë«í¼.
+/// - Collider2DëŠ” "Is Trigger=false"ë¡œ ì„¤ì •ë˜ì–´ í”Œë ˆì´ì–´ê°€ ë°Ÿì„ ìˆ˜ ìˆìŒ.
+/// - Rigidbody2Dë¥¼ ì‚¬ìš©í•˜ì—¬ Kinematic + ë¶€ë“œëŸ¬ìš´ ì´ë™(MovePosition) ì²˜ë¦¬
+/// - ì›¨ì´í¬ì¸íŠ¸ì˜ ì›”ë“œ ì¢Œí‘œë¥¼ ìºì‹±
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 [DisallowMultipleComponent]
 public class MovingPlatform2D : MonoBehaviour
 {
     [Header("Path")]
-    public List<Transform> waypoints = new List<Transform>(); // 2°³ ÀÌ»ó
+    public List<Transform> waypoints = new List<Transform>(); // 2ê°œ ì´ìƒ
     public int startIndex = 0;
-    public bool pingPong = true;        // ³¡¿¡¼­ µÇµ¹¾Æ¿À±â(¿Õº¹). false¸é ·çÇÁ
+    public bool pingPong = true;        // ì™•ë³µìœ¼ë¡œ ë˜ëŒì•„ì˜´. falseë©´ ìˆœí™˜
 
     [Header("Motion")]
-    [Tooltip("ÃÊ´ç ÀÌµ¿ ¼Óµµ(m/s)")]
+    [Tooltip("ì´ˆë‹¹ ì´ë™ ì†ë„(m/s)")]
     public float speed = 2f;
-    [Tooltip("°¢ Æ÷ÀÎÆ®¿¡¼­ Àá±ñ Á¤Áö ½Ã°£(ÃÊ)")]
+    [Tooltip("ê° ì›¨ì´í¬ì¸íŠ¸ì— ë„ì°© í›„ ë©ˆì¶”ëŠ” ì‹œê°„(ì´ˆ)")]
     public float pauseAtPoints = 0f;
 
     [Header("Physics")]
-    public Rigidbody2D rb;              // ÀÖÀ¸¸é ¹°¸® ÇÁ·¹ÀÓÀ¸·Î MovePosition
+    public Rigidbody2D rb;              // ë¶€ë“œëŸ¬ìš´ ì´ë™ì„ ìœ„í•´ MovePosition ì‚¬ìš©
     public bool forceKinematic = true;
 
     [Header("Passengers")]
-    public string playerTag = "Player"; // ÇÃ·¹ÀÌ¾î ÅÂ±×
-    public bool parentPassenger = false; // ¡Ú PlayerController°¡ µ¨Å¸ ÅÂ¿ì±â¸é false ±ÇÀå
+    public string playerTag = "Player"; // í”Œë ˆì´ì–´ íƒœê·¸ (ì •ë³´ì„±ìœ¼ë¡œ ìœ ì§€)
+    public bool parentPassenger = true; 
 
-    // --- ³»ºÎ »óÅÂ
+    // --- ë‚´ë¶€ ìƒíƒœ
     readonly List<Vector3> cachedWorldPoints = new List<Vector3>();
     int currentIndex;
-    int dir = 1; // +1 Á¤¹æÇâ, -1 ¿ª¹æÇâ
+    int dir = 1; // +1 ì •ë°©í–¥, -1 ì—­ë°©í–¥
     Coroutine runner;
 
-    const float EPS = 0.00004f; // µµÂø ÆÇÁ¤
+    const float EPS = 0.00004f; // ê·¼ì ‘ ì²´í¬ ì˜¤ì°¨
 
     void Reset()
     {
         var col = GetComponent<Collider2D>();
         col.isTrigger = false;
 
-        // ÈçÈ÷ Ground ·¹ÀÌ¾î »ç¿ë
+        // ê¸°ë³¸ Ground ë ˆì´ì–´ ì„¤ì •
         try { gameObject.layer = LayerMask.NameToLayer("Ground"); } catch { }
 
         var r = GetComponent<Rigidbody2D>();
@@ -52,7 +52,7 @@ public class MovingPlatform2D : MonoBehaviour
         r.bodyType = RigidbodyType2D.Kinematic;
         r.gravityScale = 0f;
         r.constraints = RigidbodyConstraints2D.FreezeRotation;
-        r.interpolation = RigidbodyInterpolation2D.Interpolate; // ·»´õ º¸°£
+        r.interpolation = RigidbodyInterpolation2D.Interpolate; // ë Œë”ë§ ë¶€ë“œëŸ½ê²Œ
         rb = r;
     }
 
@@ -65,13 +65,13 @@ public class MovingPlatform2D : MonoBehaviour
             rb.gravityScale = 0f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-            rb.useFullKinematicContacts = true; // Á¢ÃË ¾ÈÁ¤È­
+            rb.useFullKinematicContacts = true; // ì ‘ì´‰ ì•ˆì •í™”
         }
     }
 
     void OnEnable()
     {
-        // ºñ¾î ÀÖÀ¸¸é ÀÚ½ÄµéÀ» ÀÚµ¿À¸·Î Ã¤¿ò(ÆíÀÇ)
+        // ì›¨ì´í¬ì¸íŠ¸ ìì‹ë“¤ì„ ìë™ìœ¼ë¡œ ì±„ì›€(í´ë°±)
         if (waypoints == null || waypoints.Count < 2)
         {
             waypoints = new List<Transform>();
@@ -84,11 +84,11 @@ public class MovingPlatform2D : MonoBehaviour
         currentIndex = Mathf.Clamp(startIndex, 0, cachedWorldPoints.Count - 1);
         dir = (pingPong && currentIndex == cachedWorldPoints.Count - 1) ? -1 : 1;
 
-        // ½ÃÀÛ À§Ä¡ ½º³À
+        // ì´ˆê¸° ìœ„ì¹˜ ì„¤ì •
         SnapPosition(cachedWorldPoints[currentIndex]);
 
-        // ¡Ú Rigidbody À¯¹«¿¡ µû¶ó ´Ù¸¥ ·çÆ¾
-        runner = StartCoroutine(rb ? MoveRoutineRB() : MoveRoutineTransform());
+        // â˜…â˜…â˜… Rigidbody ë°©ì‹ (MoveRoutineRB())ìœ¼ë¡œ ë³µêµ¬í•˜ì—¬ ë¬¼ë¦¬ ì•ˆì •ì„±ì„ ë†’ì…ë‹ˆë‹¤.
+        runner = StartCoroutine(MoveRoutineRB()); 
     }
 
     void OnDisable()
@@ -103,7 +103,7 @@ public class MovingPlatform2D : MonoBehaviour
             if (t) cachedWorldPoints.Add(t.position);
     }
 
-    // ---------- Transform ±â¹İ(ºñ¹°¸®) ----------
+    // ---------- Transform ë°©ì‹ (Update í”„ë ˆì„ì—ì„œ ì›€ì§ì„) ----------
     IEnumerator MoveRoutineTransform()
     {
         if (speed <= 0.0001f) yield break;
@@ -119,11 +119,11 @@ public class MovingPlatform2D : MonoBehaviour
                 float dist = Vector3.Distance(cur, target);
                 float step = Mathf.Min(speed * Time.deltaTime, dist);
                 Vector3 next = Vector3.MoveTowards(cur, target, step);
-                transform.position = next;
-                yield return null; // ·»´õ ÇÁ·¹ÀÓ
+                transform.position = next; 
+                yield return null; // Update í”„ë ˆì„ ëŒ€ê¸°
             }
 
-            // ÃÖÁ¾ ½º³À(ÀÜ¿© ¿ÀÂ÷ Á¦°Å)
+            // ì •í™•í•œ ìœ„ì¹˜ ì„¤ì •
             transform.position = target;
 
             currentIndex = nextIndex;
@@ -133,7 +133,7 @@ public class MovingPlatform2D : MonoBehaviour
         }
     }
 
-    // ---------- Rigidbody2D ±â¹İ(¹°¸® ÇÁ·¹ÀÓ) ----------
+    // ---------- Rigidbody2D ë°©ì‹ (FixedUpdate í”„ë ˆì„ì—ì„œ ì›€ì§ì„ - ì•ˆì •ì ì¸ ë¬¼ë¦¬ ì´ë™) ----------
     IEnumerator MoveRoutineRB()
     {
         if (speed <= 0.0001f) yield break;
@@ -154,10 +154,10 @@ public class MovingPlatform2D : MonoBehaviour
                 Vector2 next = cur + to / dist * step;
 
                 rb.MovePosition(next);
-                yield return new WaitForFixedUpdate(); // ¡Ú ¹°¸® ÇÁ·¹ÀÓ
+                yield return new WaitForFixedUpdate(); // ë‹¤ìŒ ë¬¼ë¦¬ í”„ë ˆì„ ëŒ€ê¸° 
             }
 
-            // ÃÖÁ¾ ½º³À(ÀÜ¿© ¿ÀÂ÷ Á¦°Å)
+            // ì •í™•í•œ ìœ„ì¹˜ ì„¤ì •
             rb.position = target;
 
             currentIndex = nextIndex;
@@ -186,32 +186,15 @@ public class MovingPlatform2D : MonoBehaviour
 
     void SnapPosition(Vector3 p)
     {
-        if (rb) rb.position = p; // ½ÃÀÛ ½º³ÀÀº MovePosition ´ë½Å Á÷Á¢ ¹èÄ¡
-        else transform.position = p;
+        if (rb) rb.position = p; 
+        else transform.position = p; 
     }
 
-    // ---- ½Â°´ ÅÂ¿ì±â(ÇÃ·¹ÀÌ¾î¸¸) ----
-    void OnCollisionEnter2D(Collision2D c)
-    {
-        if (!parentPassenger) return;
-        if (!c.collider || !c.collider.CompareTag(playerTag)) return;
-
-        // À§¿¡¼­ ¹â´Â ÁßÀÌ¸é ºÙ¿©ÁÖ±â
-        var other = c.collider;
-        if (other.bounds.min.y >= GetComponent<Collider2D>().bounds.max.y - 0.02f)
-        {
-            other.transform.SetParent(transform, true);
-        }
-    }
-
-    void OnCollisionExit2D(Collision2D c)
-    {
-        if (!parentPassenger) return;
-        if (!c.collider || !c.collider.CompareTag(playerTag)) return;
-
-        if (c.collider.transform.parent == transform)
-            c.collider.transform.SetParent(null, true);
-    }
+    // ---- ìŠ¹ê° ë¶€ëª¨-ìì‹ ê´€ê³„ ì²˜ë¦¬ ë¡œì§ì€ PlayerController.csì—ì„œ ë‹´ë‹¹í•˜ë¯€ë¡œ ì œê±°í•©ë‹ˆë‹¤. ----
+    /*
+    void OnCollisionEnter2D(Collision2D c) { ... }
+    void OnCollisionExit2D(Collision2D c) { ... }
+    */
 
 #if UNITY_EDITOR
     void OnDrawGizmos()

@@ -2569,7 +2569,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 43.571472, y: 489.30322}
+  m_AnchoredPosition: {x: -831, y: 489.30322}
   m_SizeDelta: {x: 95.142944, y: 74.39368}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &370406396
@@ -14660,6 +14660,7 @@ MonoBehaviour:
   deadAnimMinWait: 0.15
   deadAnimTimeout: 2.5
   debugAnim: 0
+  move: {fileID: 0}
 --- !u!70 &1724297849
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
