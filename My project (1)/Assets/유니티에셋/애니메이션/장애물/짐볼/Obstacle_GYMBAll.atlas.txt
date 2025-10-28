@@ -1,0 +1,6 @@
+Obstacle_GYMBAll.png
+size:186,183
+filter:Linear,Linear
+pma:true
+색조/채도 1
+bounds:2,2,182,179

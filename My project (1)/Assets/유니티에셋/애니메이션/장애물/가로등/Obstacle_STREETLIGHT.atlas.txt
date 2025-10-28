@@ -1,0 +1,12 @@
+Obstacle_STREETLIGHT.png
+size:701,143
+filter:Linear,Linear
+pma:true
+Light
+bounds:2,15,126,304
+offsets:10,47,144,352
+rotate:90
+Stick
+bounds:308,2,139,391
+offsets:1,1,142,393
+rotate:90

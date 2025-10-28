@@ -27,8 +27,8 @@ public class TypingDialougeSimple : MonoBehaviour
     private bool dialogueEnded = false;
     private bool waitingForClose = false;
 
-    // ★★★ 추가: NPCInteraction 참조 필드 ★★★
     private NPCInteraction interactionController;
+    private bool ignoreInputFrame = false;
 
     // -------- Portrait (이식된 부분) --------
     [Header("Portrait (이식)")]
@@ -42,23 +42,60 @@ public class TypingDialougeSimple : MonoBehaviour
 
     [SerializeField] private Sprite defaultPortrait;
 
+    // NPCInteraction 없이 UI를 닫기 위한 필드 추가
+    [Header("Dialogue Panel (for Direct Close)")]
+    [Tooltip("전체 대화 UI를 감싸는 최상위 패널 (NPCInteraction 없을 시 사용)")]
+    public GameObject dialogueGroupContainer;
+
+
     void Start()
     {
         InitPortrait();
-        // NPCInteraction에서 StartNewDialogue를 호출할 때까지 대기합니다.
+
+        // ★★★ Start() 시점에 NPCInteraction이 없다면 대화를 자동 시작합니다. ★★★
+        if (FindObjectOfType<NPCInteraction>() == null)
+        {
+            // UI를 수동으로 켭니다.
+            if (dialogueGroupContainer != null) dialogueGroupContainer.SetActive(true);
+
+            // 첫 대사 자동 시작
+            if (lines != null && lines.Count > 0)
+            {
+                ShowNextLine();
+            }
+            else
+            {
+                Debug.LogWarning("Dialogue lines are empty. Cannot start dialogue automatically.");
+            }
+        }
+        // NPCInteraction이 있다면, NPCInteraction이 F키 입력 후 StartNewDialogue()를 호출할 때까지 대기합니다.
     }
 
     void Update()
     {
+        if (ignoreInputFrame)
+        {
+            ignoreInputFrame = false;
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
         {
             if (isTyping)
             {
                 SkipTyping();
             }
-            // ★★★ 대화가 이미 끝났고 닫히기를 기다리는 상태라면, 아무것도 하지 않고 NPCInteraction에 F를 넘깁니다. ★★★
             else if (dialogueEnded && waitingForClose)
             {
+                // UI 닫기 로직 (EndDialogue가 이미 CloseDialogueUI를 호출함)
+                if (interactionController != null)
+                {
+                    EndDialogue();
+                }
+                else
+                {
+                    CloseDialogueUI();
+                }
                 return;
             }
             else
@@ -68,21 +105,26 @@ public class TypingDialougeSimple : MonoBehaviour
         }
     }
 
-    // ★★★ 1. 외부에서 새로운 대화 목록, 시작 초상화, 그리고 NPCInteraction 컨트롤러를 받습니다. ★★★
     public void StartNewDialogue(List<DialogueLine> newLines, Sprite startPortrait, NPCInteraction controller)
     {
-        // 컨트롤러 참조 저장
+        // ★★★ 안전장치: 대화 목록이 비어있으면 즉시 종료하고 시작 방지 ★★★
+        if (newLines == null || newLines.Count == 0)
+        {
+            Debug.LogWarning("Dialogue list is empty. Cannot start dialogue.");
+            CloseDialogueUI();
+            return;
+        }
+
         interactionController = controller;
-
-        // 새로운 대화 목록으로 교체
         lines = newLines;
-
-        // 상태 초기화
         currentLineIndex = 0;
         dialogueEnded = false;
         waitingForClose = false;
 
-        // NPC에 따라 다른 초상화로 즉시 설정
+        // 초상화 GameObject 강제 활성화 
+        if (portraitFront != null) portraitFront.gameObject.SetActive(true);
+        if (portraitBack != null) portraitBack.gameObject.SetActive(true);
+
         if (startPortrait != null)
         {
             SetPortraitInstant(startPortrait);
@@ -92,11 +134,10 @@ public class TypingDialougeSimple : MonoBehaviour
             SetPortraitInstant(defaultPortrait);
         }
 
-        // 대화 시작
+        ignoreInputFrame = true;
         ShowNextLine();
     }
 
-    // 외부에서 타이핑 속도를 강제로 설정할 수 있는 함수
     public void SetTypingSpeed(float speed)
     {
         if (speed > 0f)
@@ -105,9 +146,9 @@ public class TypingDialougeSimple : MonoBehaviour
         }
     }
 
-
     public void ShowNextLine()
     {
+        // ★★★ 핵심: 대화 목록 끝에 도달했는지 확인 ★★★
         if (currentLineIndex >= lines.Count)
         {
             EndDialogue();
@@ -116,7 +157,7 @@ public class TypingDialougeSimple : MonoBehaviour
 
         DialogueLine line = lines[currentLineIndex];
 
-        // UI 초기화
+        // UI 초기화 (활성화/비활성화)
         girlUI.SetActive(false);
         dadUI.SetActive(false);
 
@@ -173,22 +214,46 @@ public class TypingDialougeSimple : MonoBehaviour
         isTyping = false;
     }
 
-    // ★★★ 2. 대화가 끝나면 직접 EndInteraction을 호출하여 UI를 닫습니다. ★★★
     void EndDialogue()
     {
         dialogueEnded = true;
         waitingForClose = true;
 
+        // F 키 입력 버퍼 비우기 (NPCInteraction 충돌 방지)
+        Input.ResetInputAxes();
+
+        // UI 닫기
+        CloseDialogueUI();
+
         if (interactionController != null)
         {
-            // UI를 닫는 책임을 NPCInteraction에 넘깁니다.
+            // NPCInteraction에게 상태 초기화 책임을 위임
             interactionController.EndInteraction();
         }
 
-        Debug.Log("Dialogue ended. UI closed by TypingDialougeSimple.");
+        Debug.Log("Dialogue ended. UI closed.");
     }
 
-    // 외부에서 대화가 완전히 끝났는지 확인할 수 있도록 상태를 반환합니다.
+    // UI를 완전히 닫는 함수 (잔상 제거 로직)
+    public void CloseDialogueUI()
+    {
+        // 1. 전체 Container 비활성화 
+        if (dialogueGroupContainer != null) dialogueGroupContainer.SetActive(false);
+
+        // 2. 개별 UI 비활성화
+        if (girlUI != null) girlUI.SetActive(false);
+        if (dadUI != null) dadUI.SetActive(false);
+
+        // 3. Portrait 잔상 제거
+        if (portraitFront != null) portraitFront.gameObject.SetActive(false);
+        if (portraitBack != null) portraitBack.gameObject.SetActive(false);
+
+        // 상태 초기화
+        dialogueEnded = false;
+        waitingForClose = false;
+    }
+
+
     public bool IsDialogueFinished()
     {
         return dialogueEnded && waitingForClose;
@@ -217,8 +282,11 @@ public class TypingDialougeSimple : MonoBehaviour
 
     void SetPortraitInstant(Sprite sprite)
     {
-        if (!portraitReady || !sprite) return;
+        if (!portraitReady || sprite == null) return;
         portraitFront.sprite = sprite;
+
+        // Portrait Image의 GameObject를 활성화합니다.
+        if (portraitFront.gameObject != null) portraitFront.gameObject.SetActive(true);
 
         var cb = portraitBack.color; cb.a = 0f; portraitBack.color = cb;
         var cf = portraitFront.color; cf.a = 1f; portraitFront.color = cf;
@@ -226,10 +294,15 @@ public class TypingDialougeSimple : MonoBehaviour
 
     void CrossfadeToPortrait(Sprite sprite, float duration)
     {
-        if (!portraitReady || !sprite) return;
+        if (!portraitReady || sprite == null) return;
         if (portraitFront.sprite == sprite) return;
 
         if (portraitCo != null) StopCoroutine(portraitCo);
+
+        // Crossfade 시작 시 Portrait GameObject가 켜져 있어야 합니다.
+        if (portraitFront.gameObject != null) portraitFront.gameObject.SetActive(true);
+        if (portraitBack.gameObject != null) portraitBack.gameObject.SetActive(true);
+
         portraitCo = StartCoroutine(CoPortrait(sprite, duration));
     }
 

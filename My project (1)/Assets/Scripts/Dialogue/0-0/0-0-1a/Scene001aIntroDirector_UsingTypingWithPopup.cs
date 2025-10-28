@@ -1,61 +1,96 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.Video;
+using System; // Action ì‚¬ìš©ì„ ìœ„í•´ í•„ìš”
 
 [DisallowMultipleComponent]
 public class Scene001aIntroDirector_UsingTypingWithPopup : MonoBehaviour
 {
-    [Header("Dialogue (existing TypingDialogueWithPopup)")]
-    public TypingDialogueWithPopup dialogue;  // ±âÁ¸ ½ºÅ©¸³Æ®
-    [TextArea] public string line1 = "ÀÌÁ¦ Àú ¾ÆÀú¾¾´Â ±¦ÂúÀº °Í °°¾Æ. »öÀÌ ´Ù½Ã µ¹¾Æ¿Ô¾î.";
-    [TextArea] public string line2 = "..ÀÌÁ¦´Â Àú ¾ÆÁÜ¸¶¸¦ µµ¿ÍÁà¾ß µÉ °Í °°¾Æ. ¸¶À½ÀÌ ³Ê¹« ¾ÆÆÄ º¸¿©.";
-    public KeyCode advanceKey = KeyCode.F;    // ÁøÇà Å°
+    [Header("Video")]
+    public VideoPlayer videoPlayer;
+    public bool playOnStart = true;
+    public bool pauseVideoOnDialogue = true;
+
+    [Header("Dialogue Start")]
+    [Tooltip("ì»·ì‹  ì‹œì‘ í›„ ì´ ì‹œê°„ì´ ì§€ë‚˜ë©´ ëŒ€ì‚¬ë¥¼ ì‹œì‘í•©ë‹ˆë‹¤(ì´ˆ)")]
+    public float delayBeforeDialogue = 5f;
+
+    [Header("Dialogue (ê¸°ì¡´ ìŠ¤í¬ë¦½íŠ¸ ê·¸ëŒ€ë¡œ ì‚¬ìš©)")]
+    public TypingDialogueWithPopup dialogue;    // â† ë„¤ê°€ ì´ë¯¸ ì“°ëŠ” ì»´í¬ë„ŒíŠ¸
 
     [Header("Scene Transition")]
     public string nextSceneName = "GameScene-1a";
 
+    // â˜…â˜…â˜… ì¶”ê°€ëœ í•„ë“œ â˜…â˜…â˜…
+    [Header("Stage Clear Flag")]
+    [Tooltip("ì´ ì”¬ì´ STAGE 1 í´ë¦¬ì–´ ë°ì´í„°ë¥¼ ì €ì¥í•˜ëŠ” ìµœì¢… ì”¬ì¸ì§€")]
+    public bool isFinalStageClearScene = false;
+    // â˜…â˜…â˜… ì¶”ê°€ëœ í•„ë“œ ë â˜…â˜…â˜…
+
+    [Header("Optional UI")]
+    [Tooltip("ëŒ€ì‚¬ ì‹œì‘ ì „ê¹Œì§„ ìˆ¨ê¸¸ ì˜¤ë¸Œì íŠ¸(ëŒ€ì‚¬ íŒ¨ë„ ë£¨íŠ¸ ë“±)")]
+    public GameObject[] hideUntilDialogue;
+
     [Header("Camera Focus")]
-    public Camera cam;                 // ºñ¿ì¸é Camera.main
-    public Transform dadFocus;         // ¾Æºü Å¬·ÎÁî¾÷ Æ÷ÀÎÆ®(ºó ¿ÀºêÁ§Æ®)
-    public Transform momFocus;         // ¾ö¸¶ Å¬·ÎÁî¾÷ Æ÷ÀÎÆ®(ºó ¿ÀºêÁ§Æ®)
+    public Camera cam;
+    public Transform dadFocus;
+    public Transform momFocus;
     public float zoomInTime = 0.6f;
     public float holdTime = 0.6f;
     public float zoomOutTime = 0.6f;
-    [Tooltip("Á÷±³ Ä«¸Ş¶ó: ÀÛÀ»¼ö·Ï ´õ °¡±î¿ò")]
+    [Tooltip("ì§êµ ì¹´ë©”ë¼: ì‘ì„ìˆ˜ë¡ ë” ê°€ê¹Œì›€")]
     public float orthoZoomSize = 2.5f;
-    [Tooltip("¿ø±Ù Ä«¸Ş¶ó: ÀÛÀ»¼ö·Ï ´õ °¡±î¿ò")]
+    [Tooltip("ì›ê·¼ ì¹´ë©”ë¼: ì‘ì„ìˆ˜ë¡ ë” ê°€ê¹Œì›€")]
     public float perspectiveFOV = 30f;
 
     [Header("Optional")]
-    [Tooltip("¿¬Ãâ Áß ºñÈ°¼ºÈ­ÇÒ Ä«¸Ş¶ó ÆÈ·Î¿ì/Cinemachine ¿ÀºêÁ§Æ®")]
+    [Tooltip("ì—°ì¶œ ì¤‘ ë¹„í™œì„±í™”í•  ì¹´ë©”ë¼ íŒ”ë¡œìš°/Cinemachine ì˜¤ë¸Œì íŠ¸")]
     public GameObject cameraFollowToDisable;
+
 
     // internal
     Vector3 camPos0; float ortho0; float fov0;
     bool followWasActive;
 
+    // ... (Dialogue lines) ...
+    [TextArea] public string line1 = "ì´ì œ ì € ì•„ì €ì”¨ëŠ” ê´œì°®ì€ ê²ƒ ê°™ì•„. ìƒ‰ì´ ë‹¤ì‹œ ëŒì•„ì™”ì–´.";
+    [TextArea] public string line2 = "..ì´ì œëŠ” ì € ì•„ì¤Œë§ˆë¥¼ ë„ì™€ì¤˜ì•¼ ë  ê²ƒ ê°™ì•„. ë§ˆìŒì´ ë„ˆë¬´ ì•„íŒŒ ë³´ì—¬.";
+    public KeyCode advanceKey = KeyCode.F;      // ì§„í–‰ í‚¤
+
+
+    bool started;
+    bool seenAnyDialogueUI;
+    bool closingDetected;
+
+
     void Awake()
     {
         if (!cam) cam = Camera.main;
-        if (!cam) { Debug.LogError("[IntroDirector] Camera°¡ ÇÊ¿äÇÕ´Ï´Ù."); enabled = false; return; }
+        if (!cam) { Debug.LogError("[IntroDirector] Cameraê°€ í•„ìš”í•©ë‹ˆë‹¤."); enabled = false; return; }
 
         camPos0 = cam.transform.position;
         if (cam.orthographic) ortho0 = cam.orthographicSize; else fov0 = cam.fieldOfView;
 
         if (!dialogue)
         {
-            Debug.LogError("[IntroDirector] TypingDialogueWithPopup ÂüÁ¶°¡ ÇÊ¿äÇÕ´Ï´Ù.");
+            Debug.LogError("[IntroDirector] TypingDialogueWithPopup ì°¸ì¡°ê°€ í•„ìš”í•©ë‹ˆë‹¤.");
             enabled = false; return;
         }
 
-        // ¡Ú TypingDialogueWithPopupÀÌ Start¿¡¼­ lines¸¦ ¹Ù·Î ÀĞÀ¸¹Ç·Î,
-        //    Awake¿¡¼­ ¸ÕÀú ÁÖÀÔÇØ µÎ¸é ¼ø¼­ ¹®Á¦ ¾øÀÌ µ¿ÀÛÇÕ´Ï´Ù.
+        // 1. Dialogue ì»´í¬ë„ŒíŠ¸ ì„¤ì •
         dialogue.lines = new string[] { line1, line2 };
         dialogue.nextKey = advanceKey;
+
+        // 2. â˜…â˜…â˜… í•µì‹¬ ìˆ˜ì •: Dialogueì˜ ì¢…ë£Œ ì‹œ í˜¸ì¶œí•  ì½œë°± í•¨ìˆ˜ ì£¼ì… â˜…â˜…â˜…
+        // DialogueëŠ” ì´ì œ ì´ í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•  ì±…ì„ë§Œ ê°€ì§‘ë‹ˆë‹¤.
+        dialogue.onEndSequence = HandleStageClearAndTransition;
+
+        // 3. Dialogue ì»´í¬ë„ŒíŠ¸ê°€ ì”¬ ì „í™˜ì„ ì‹¤í–‰í•˜ë„ë¡ nextSceneName ì„¤ì • (Directorì˜ ê°’ ì‚¬ìš©)
         dialogue.nextSceneName = nextSceneName;
 
-        // ÀÌ ¾À¿¡¼­´Â ÆË¾÷/Ä«¸Ş¶ó±â´ÉÀ» ¾²Áö ¾Êµµ·Ï(³»ºÎ MoveCameraTo´Â EndSequence¸¦ È£ÃâÇÔ)
+        // ì´ ì”¬ì—ì„œëŠ” íŒì—…/ì¹´ë©”ë¼ê¸°ëŠ¥ì„ ì“°ì§€ ì•Šë„ë¡
         dialogue.popupObject = null;
         dialogue.dimBackground = null;
         dialogue.cameraTransform = null;
@@ -68,6 +103,27 @@ public class Scene001aIntroDirector_UsingTypingWithPopup : MonoBehaviour
         }
     }
 
+    // â˜…â˜…â˜… Stage Clear ë° ìµœì¢… ì”¬ ì „í™˜ ë¡œì§ (Directorê°€ ë‹´ë‹¹) â˜…â˜…â˜…
+    void HandleStageClearAndTransition()
+    {
+        // 1. STAGE 1 í´ë¦¬ì–´ ë°ì´í„° ì €ì¥ (isFinalStageClearSceneì´ Trueì¼ ë•Œë§Œ ì‹¤í–‰)
+        if (isFinalStageClearScene)
+        {
+            PlayerPrefs.SetInt("STAGE1_CLEARED", 1);
+            PlayerPrefs.Save();
+            Debug.Log("[Director] STAGE 1 CLEARED data saved. Initiating final transition.");
+        }
+        else
+        {
+            Debug.Log("[Director] Not final clear scene. Skipping data save.");
+        }
+
+        // 2. ìµœì¢… ëª©ì ì§€ë¡œ ì”¬ ì „í™˜ (Dialogueì˜ EndSequence()ì— ì˜í•´ ì‹¤í–‰ë¨)
+        // Dialogue.EndSequence()ê°€ ì´ í•¨ìˆ˜ ì‹¤í–‰ í›„ nextSceneNameìœ¼ë¡œ ì „í™˜ì„ ì‹œë„í•©ë‹ˆë‹¤.
+    }
+    // â˜…â˜…â˜… Stage Clear ë° ìµœì¢… ì”¬ ì „í™˜ ë¡œì§ ë â˜…â˜…â˜…
+
+
     void OnDisable()
     {
         if (cameraFollowToDisable)
@@ -76,32 +132,61 @@ public class Scene001aIntroDirector_UsingTypingWithPopup : MonoBehaviour
 
     void Start()
     {
-        // TypingDialogueWithPopupÀº Start¿¡¼­ ÀÚµ¿À¸·Î 1¹øÂ° ÁÙÀ» Ãâ·Â ½ÃÀÛÇÕ´Ï´Ù.
-        // ¿ì¸®´Â ÅØ½ºÆ®°¡ "¿ÏÀüÈ÷" Ç¥½ÃµÇ´Â ½ÃÁ¡À» °¨ÁöÇØ Ä«¸Ş¶ó ¿¬ÃâÀ» ¼öÇàÇÕ´Ï´Ù.
-        StartCoroutine(RunSequence());
+        if (started) return;
+        started = true;
+
+        if (videoPlayer && playOnStart && !videoPlayer.isPlaying)
+            videoPlayer.Play();
+
+        // RunSequence() ì½”ë£¨í‹´ ì‹œì‘
+        StartCoroutine(CoRun());
     }
 
-    IEnumerator RunSequence()
+    // ì´ ì½”ë£¨í‹´ì€ ì¹´ë©”ë¼ ì—°ì¶œì„ ìœ„í•´ ìœ ì§€í•©ë‹ˆë‹¤.
+    IEnumerator CoRun()
     {
-        // 1) Ã¹ ¹øÂ° ÁÙÀÌ ¿ÏÀüÈ÷ Ç¥½ÃµÉ ¶§±îÁö ´ë±â
+        // 1) ì¼ì • ì‹œê°„ ëŒ€ê¸° (ì˜ìƒ ì¬ìƒ ë“±)
+        float t = 0f;
+        while (t < delayBeforeDialogue) { t += Time.deltaTime; yield return null; }
+
+        // 2) í•„ìš”í•˜ë©´ ë¹„ë””ì˜¤ ì¼ì‹œì •ì§€
+        if (pauseVideoOnDialogue && videoPlayer) videoPlayer.Pause();
+
+        // 3) ìˆ¨ê²¨ë‘” UI ì¼œê¸°
+        if (hideUntilDialogue != null)
+            foreach (var go in hideUntilDialogue)
+                if (go) go.SetActive(true);
+
+        // 4) ëŒ€ì‚¬ ì‹œì‘ (TypingDialogueWithPopupì˜ Start()ê°€ ëŒë©´ì„œ ìë™ ì‹œì‘)
+        if (dialogue) dialogue.enabled = true;
+
+        // 5) ì¹´ë©”ë¼ ì—°ì¶œ ìˆ˜í–‰
+        // 1ë²ˆì§¸ ì¤„ ëŒ€ê¸°
         yield return StartCoroutine(WaitUntilTextFullyEquals(dialogue.dialogueText, line1));
-        // ¾Æºü Å¬·ÎÁî¾÷(µµÁß¿¡ »ç¿ëÀÚ°¡ ´ÙÀ½ ÁÙ·Î ³Ñ±â¸é Áï½Ã Áß´Ü)
+        // ì•„ë¹  í´ë¡œì¦ˆì—…
         if (dadFocus) yield return StartCoroutine(ZoomWithInterrupt(line1, dadFocus));
 
-        // 2) µÎ ¹øÂ° ÁÙÀÌ ¿ÏÀüÈ÷ Ç¥½ÃµÉ ¶§±îÁö ´ë±â
+        // 2ë²ˆì§¸ ì¤„ ëŒ€ê¸°
         yield return StartCoroutine(WaitUntilTextFullyEquals(dialogue.dialogueText, line2));
-        // ¾ö¸¶ Å¬·ÎÁî¾÷(¸¶Âù°¡Áö·Î µµÁß¿¡ ÁÙÀÌ ¹Ù²î¸é Áß´Ü)
+        // ì—„ë§ˆ í´ë¡œì¦ˆì—…
         if (momFocus) yield return StartCoroutine(ZoomWithInterrupt(line2, momFocus));
 
-        // ÀÌÈÄ Èå¸§: »ç¿ëÀÚ°¡ F·Î ¸¶Áö¸· ÁÙÀ» ³Ñ±â¸é
-        // TypingDialogueWithPopupÀÌ EndSequence()¸¦ È£ÃâÇÏ°í
-        // nextSceneName("GameScene-1a")·Î ÀüÈ¯µË´Ï´Ù.
+        // ì´í›„ íë¦„: ì‚¬ìš©ìê°€ Fë¡œ ë§ˆì§€ë§‰ ì¤„ì„ ë„˜ê¸°ë©´
+        // TypingDialogueWithPopupì´ EndSequence()ë¥¼ í˜¸ì¶œí•˜ê³ 
+        // onEndSequence (HandleStageClearAndTransition)ë¥¼ ì‹¤í–‰í•©ë‹ˆë‹¤.
+
+        // ë§ˆì§€ë§‰ ëŒ€ê¸°
+        while (dialogue.enabled)
+        {
+            yield return null; // dialogue ìŠ¤í¬ë¦½íŠ¸ê°€ ìŠ¤ìŠ¤ë¡œ ì”¬ ì „í™˜ì„ ìˆ˜í–‰í•  ë•Œê¹Œì§€ ëŒ€ê¸°
+        }
     }
+
 
     IEnumerator WaitUntilTextFullyEquals(TMP_Text label, string target)
     {
         if (!label) yield break;
-        // »ç¿ëÀÚ°¡ F·Î ½ºÅµÇÏµç Å¸ÀÌÇÎÀÌ ³¡³ªµç, "Á¤È®È÷ °°Àº ¹®ÀÚ¿­"ÀÌ µÈ ½ÃÁ¡±îÁö ´ë±â
+        // ì‚¬ìš©ìê°€ Fë¡œ ìŠ¤í‚µí•˜ë“  íƒ€ì´í•‘ì´ ëë‚˜ë“ , "ì •í™•íˆ ê°™ì€ ë¬¸ìì—´"ì´ ëœ ì‹œì ê¹Œì§€ ëŒ€ê¸°
         while (label.text != target)
             yield return null;
     }
@@ -110,7 +195,7 @@ public class Scene001aIntroDirector_UsingTypingWithPopup : MonoBehaviour
     {
         if (!cam) yield break;
 
-        // ÁØºñ
+        // ì¤€ë¹„
         Vector3 startPos = cam.transform.position;
         Vector3 targetPos = new Vector3(focus.position.x, focus.position.y, startPos.z);
         float fromSize = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
@@ -120,7 +205,7 @@ public class Scene001aIntroDirector_UsingTypingWithPopup : MonoBehaviour
         float t = 0f;
         while (t < zoomInTime)
         {
-            // ÁÙÀÌ ¹Ù²î¸é Áï½Ã Áß´Ü
+            // ì¤„ì´ ë°”ë€Œë©´ ì¦‰ì‹œ ì¤‘ë‹¨
             if (dialogue.dialogueText && dialogue.dialogueText.text != watchingLine)
                 yield break;
 

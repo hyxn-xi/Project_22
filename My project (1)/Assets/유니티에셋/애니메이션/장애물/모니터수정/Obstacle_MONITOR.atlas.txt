@@ -1,0 +1,15 @@
+Obstacle_MONITOR.png
+size:334,260
+filter:Linear,Linear
+pma:true
+screen1
+bounds:273,139,119,59
+offsets:1,1,121,61
+rotate:90
+screen3
+bounds:273,18,119,59
+offsets:1,1,121,61
+rotate:90
+레이어 1
+bounds:2,2,269,256
+offsets:1,1,271,258

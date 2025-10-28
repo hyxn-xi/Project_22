@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video; // VideoPlayer 사용을 위해 필요
 
 [DisallowMultipleComponent]
 public class StageClearSequence : MonoBehaviour
@@ -20,7 +21,7 @@ public class StageClearSequence : MonoBehaviour
     public float radialDuration = 0.9f;
 
     [Header("Background source (밝은 배경)")]
-    public SpriteRenderer brightBg;            // BG_Bright의 SpriteRenderer
+    public SpriteRenderer brightBg;      // BG_Bright의 SpriteRenderer
     public Texture nextBackgroundTexture;      // 비워두면 brightBg.sprite.texture 자동
 
     [Header("Pickup Animation (중복 방지용 감지)")]
@@ -28,7 +29,7 @@ public class StageClearSequence : MonoBehaviour
     public string[] pickupStateCandidates = { "PickUp", "Pickup" };
     [Tooltip("감지 그레이스(초). 이 시간 동안 '이미 픽업 상태로 진입했는지'를 먼저 기다린다.")]
     public float pickupEnterGrace = 0.25f;
-    [Tooltip("픽업 상태가 감지되지 않으면 마지막에 1회 CrossFade로 강제 진입할지")]
+    [Tooltip("감지 상태가 감지되지 않으면 마지막에 1회 CrossFade로 강제 진입할지")]
     public bool autoPlayPickupIfNotEntered = false;
     [Tooltip("autoPlay 시 사용할 레이어 인덱스(보통 0). -1이면 0을 사용")]
     public int autoPlayLayerIndex = -1;
@@ -36,8 +37,14 @@ public class StageClearSequence : MonoBehaviour
     public float pickupEndHold = 0.05f;
 
     [Header("Scene")]
-    public string nextSceneName = "";
+    public string nextSceneName = ""; // Inspector에서 다음 씬 이름을 명시적으로 설정
     public float holdAfterReveal = 3f;
+
+    // ★★★ Stage Clear Data 필드 (0-0-1a에서만 True) ★★★
+    [Header("Stage Clear Data")]
+    [Tooltip("이 씬이 스테이지 클리어 데이터 저장이 필요한 마지막 씬인지")]
+    public bool isFinalCutsceneOfStage = false;
+    // ★★★ Stage Clear Data 필드 끝 ★★★
 
     [Header("Debug")]
     public bool verboseLog = true;
@@ -128,7 +135,7 @@ public class StageClearSequence : MonoBehaviour
 
         // ---------- 1) 즉시 플레이어 고정 → 픽업 애니 '중복 없이' 완료까지 대기 ----------
         if (_player) FreezePlayer(true);
-        if (_player) yield return PlayPickupAndWait();   // ※ 트리거는 건드리지 않음
+        if (_player) yield return PlayPickupAndWait();  // ※ 트리거는 건드리지 않음
 
         // ---------- 2) 팔로우/시네머신 끄고, 경계 기준 패닝+줌 ----------
         SetBehaviours(cameraBehavioursToDisable, false);
@@ -136,7 +143,7 @@ public class StageClearSequence : MonoBehaviour
 
         // ---------- 3) 원형 퍼짐 (플레이어 중심, 코너까지 채움) ----------
         Vector3 centerWorld = _player ? _player.position :
-                              _fixedCenter ?? (levelBounds ? levelBounds.bounds.center : Vector3.zero);
+                                 _fixedCenter ?? (levelBounds ? levelBounds.bounds.center : Vector3.zero);
 
         radial.ConfigureForCamera(cam, centerWorld); // Aspect/MaxRadius/Center 세팅
         if (verboseLog)
@@ -152,10 +159,32 @@ public class StageClearSequence : MonoBehaviour
         yield return new WaitForSeconds(holdAfterReveal);
         SetBehaviours(cameraBehavioursToDisable, true);
 
-        if (!string.IsNullOrEmpty(nextSceneName))
+        // ★★★ 씬 전환 로직 수정 시작 (클리어 데이터 저장 및 순차 이동) ★★★
+        if (isFinalCutsceneOfStage)
+        {
+            // 1. STAGE 클리어 데이터 저장 (0-0-1a 씬 종료 시 실행됨)
+            PlayerPrefs.SetInt("STAGE1_CLEARED", 1);
+            PlayerPrefs.Save();
+            if (verboseLog) Debug.Log("[SCS] Stage 1 Cleared! Data saved.");
+
+            // nextSceneName은 "가정집1a"로 설정되어야 합니다.
+            if (!string.IsNullOrEmpty(nextSceneName))
+            {
+                SceneManager.LoadScene(nextSceneName);
+            }
+        }
+        else if (!string.IsNullOrEmpty(nextSceneName))
+        {
+            // 1-1 -> 1-2, 1-2 -> 1-3, 1-3 -> 1-0a 등 다음 씬 이름이 명시된 경우
             SceneManager.LoadScene(nextSceneName);
+        }
         else
-            FreezePlayer(false); // 다음 씬이 없다면 원복
+        {
+            // nextSceneName이 비워져 있다면 Build Settings의 다음 인덱스로 이동
+            int cur = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(cur + 1);
+        }
+        // ★★★ 씬 전환 로직 수정 끝 ★★★
     }
 
     // === 픽업 애니를 "중복 없이" 기다리는 구간 ===
@@ -205,7 +234,7 @@ public class StageClearSequence : MonoBehaviour
         {
             int layer = (autoPlayLayerIndex >= 0 ? autoPlayLayerIndex : 0);
             string nameToPlay = (pickupStateCandidates != null && pickupStateCandidates.Length > 0)
-                                ? pickupStateCandidates[0] : "PickUp";
+                                 ? pickupStateCandidates[0] : "PickUp";
             if (verboseLog) Debug.Log($"[SCS] Pickup NOT detected. CrossFade once → {nameToPlay} (layer {layer})");
             anim.CrossFadeInFixedTime(nameToPlay, 0.05f, layer, 0f);
         }
@@ -266,7 +295,7 @@ public class StageClearSequence : MonoBehaviour
                 _rbPrevConstraints = _rb.constraints;
 
                 _rb.velocity = Vector2.zero;
-                _rb.isKinematic = true;                           // 힘 제거
+                _rb.isKinematic = true;          // 힘 제거
                 _rb.constraints = RigidbodyConstraints2D.FreezeAll;
             }
         }
@@ -330,10 +359,10 @@ public class StageClearSequence : MonoBehaviour
             t += Time.deltaTime;
 
             Vector3 worldCenter = _player ? _player.position :
-                                  _fixedCenter ?? (levelBounds ? levelBounds.bounds.center : Vector3.zero);
+                                     _fixedCenter ?? (levelBounds ? levelBounds.bounds.center : Vector3.zero);
 
             var uv = cam.WorldToViewportPoint(worldCenter);
-            r.ConfigureForCamera(cam, uv);  // Center/Aspect/MaxRadius 동시 반영(uv버전)
+            r.ConfigureForCamera(cam, uv);  // Center/Aspect/MaxRadius/Center 동시 반영(uv버전)
 
             r.SetProgress(Mathf.Clamp01(t / duration));
             yield return null;

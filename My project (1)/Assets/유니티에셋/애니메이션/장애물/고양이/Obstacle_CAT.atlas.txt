@@ -1,0 +1,13 @@
+Obstacle_CAT.png
+size:365,182
+filter:Linear,Linear
+pma:true
+Box
+bounds:2,11,251,169
+offsets:1,1,253,173
+Face
+bounds:255,87,108,93
+offsets:0,0,108,95
+Tail
+bounds:255,2,104,83
+offsets:0,2,106,85

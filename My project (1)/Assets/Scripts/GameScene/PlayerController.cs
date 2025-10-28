@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
@@ -44,6 +44,19 @@ public class PlayerController : MonoBehaviour
     [Header("HP")]
     public int HP = 2;
 
+    [Header("Sound")]
+    public AudioSource footstepSource; // 발소리 재생용 AudioSource (걷기 Play/Stop)
+    public AudioClip footstepClip;     // 현재 씬에서 사용할 발소리 클립 (FootstepManager에서 설정)
+    public AudioSource sfxSource;      // SFX 재생용 AudioSource (PlayOneShot 전용)
+    public AudioClip jumpSound1;       // 1단 점프 사운드
+    public AudioClip jumpSound2;       // 2단 점프 사운드
+    public AudioClip landingSound;     // 착지 사운드
+
+    [Range(0f, 1f)]
+    public float jumpSfxVolume = 0.5f;   // 점프 사운드 개별 볼륨 (Inspector에서 조절)
+    [Range(0f, 1f)]
+    public float landingSfxVolume = 0.6f; // 착지 사운드 개별 볼륨 (Inspector에서 조절)
+
     [Header("Ground Check (feet raycasts)")]
     public LayerMask groundLayer;
     public float feetOffsetX = 0.22f;
@@ -57,7 +70,7 @@ public class PlayerController : MonoBehaviour
     public bool ridePlatforms = true;
     public bool alwaysIdleOnPlatforms = true;
     public bool treatMovingPlatformAsGround = true;
-    Transform currentPlatform = null; // 부모 Transform 저장용
+    Transform currentPlatform = null;
     Rigidbody2D currentPlatformRB = null;
     Vector2 lastPlatformRBPos;
     Vector3 lastPlatformPos;
@@ -167,6 +180,12 @@ public class PlayerController : MonoBehaviour
 
         if (!gameOver)
             gameOver = FindFirstObjectByType<GameOverController>(FindObjectsInactive.Include);
+
+        // 발소리 AudioSource 설정 (FootstepManager가 클립을 주입)
+        if (footstepSource != null)
+        {
+            footstepSource.loop = true;
+        }
     }
 
     void Start()
@@ -225,14 +244,6 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead || pickupLock) return;
 
-        // 변수 선언
-        var s = transform.localScale;
-        float abs = Mathf.Abs(s.x);
-
-        // 4) 방향(스케일X) 반영 — FixedUpdate에서만 Transform 수정
-        s.x = abs * (pendingFaceDir >= 0 ? 1f : -1f);
-        transform.localScale = s;
-
         // 1) 수평 속도
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
@@ -247,18 +258,31 @@ public class PlayerController : MonoBehaviour
         var pos = rb.position;
         pos.x = Mathf.Clamp(pos.x, minX, maxX);
         rb.position = pos; // Rigidbody 위치 확정
+
+        // 4) 방향(스케일X) 반영 — FixedUpdate에서만 Transform 수정
+        var s = transform.localScale;
+        float abs = Mathf.Abs(s.x);
+        s.x = abs * (pendingFaceDir >= 0 ? 1f : -1f);
+        transform.localScale = s;
     }
 
     void LateUpdate()
     {
-        if (isDead || pickupLock) return;
+        // ★★★ 수정 2. 픽업 중 발소리 즉시 정지 및 로직 차단 (안전 장치) ★★★
+        if (isDead || pickupLock)
+        {
+            if (footstepSource != null && footstepSource.isPlaying)
+            {
+                footstepSource.Stop();
+            }
+            return;
+        }
 
         UpdateGroundAndFalling();
 
         float walkSpeed = Mathf.Abs(rb.velocity.x);
         float animSpeed = walkSpeed;
 
-        // ★ 발밑이 무빙플랫폼일 때만 Idle 고정
         if (alwaysIdleOnPlatforms && isGrounded && currentPlatform != null)
             animSpeed = 0f;
 
@@ -277,23 +301,66 @@ public class PlayerController : MonoBehaviour
         if (!wasGrounded && isGrounded)
         {
             jumpCount = 0;
-            SafeSetTrigger(LandTrgHash);
-            SetTriggerIfExists(A_Land);
 
+            // 점프 관련 트리거는 일단 리셋합니다.
             SafeResetTrigger(JumpTrgHash);
             SafeResetTrigger(DoubleJumpTrgHash);
             ResetTriggerIfExists(A_Jump);
             ResetTriggerIfExists(A_DoubleJump);
 
-            landingHoldUntil = Time.time + landingMinHold;
-            StartCoroutine(FallbackFromStateToGroundedIdle(S_Landing, landingExitNormalized, landingFallbackTimeout));
+            // ★★★ 수정 1. 짐볼 상승/착지 애니메이션 분리 로직 ★★★
+            // rb.velocity.y가 양수이면 (0.1f보다 크면) 상승 중으로 간주하여 점프 애니메이션 트리거
+            if (rb.velocity.y > 0.1f)
+            {
+                // '스킬 점프'에 해당하는 Jump 트리거를 사용 (애니메이터에 Jump 트리거가 필요함)
+                SafeSetTrigger(JumpTrgHash);
+                SetTriggerIfExists(A_Jump);
+
+                // 짐볼 상승은 착지가 아니므로 사운드나 Hold 로직을 건너뜁니다.
+            }
+            else // 일반적인 착지 (속도가 0에 가깝거나 음수)
+            {
+                // 기존 착지 로직 실행
+                SafeSetTrigger(LandTrgHash);
+                SetTriggerIfExists(A_Land);
+
+                // 착지 사운드 재생 로직
+                if (sfxSource != null && landingSound != null)
+                {
+                    sfxSource.PlayOneShot(landingSound, landingSfxVolume);
+                }
+
+                landingHoldUntil = Time.time + landingMinHold;
+                StartCoroutine(FallbackFromStateToGroundedIdle(S_Landing, landingExitNormalized, landingFallbackTimeout));
+            }
+            // ★★★ 짐볼 상승/착지 애니메이션 분리 로직 끝 ★★★
         }
 
-        // isGrounded가 false인데 부모 관계가 남아있으면 해제합니다.
         if (!isGrounded && currentPlatform != null) DetachFromPlatform();
 
         wasGrounded = isGrounded;
         wasFalling = isFalling;
+
+        // ★★★ 발소리 재생 로직 (Footstep Source 전용) ★★★
+        float velocityThreshold = 0.05f;
+        // pickupLock 상태일 때는 움직이는 것으로 간주하지 않습니다.
+        bool isMoving = isGrounded && Mathf.Abs(moveInput) > velocityThreshold && !pickupLock;
+
+        // pickupLock 상태일 때 정지 로직은 이미 위에서 처리되었으므로, 여기서는 Play에만 집중합니다.
+        if (footstepSource != null && footstepSource.clip != null)
+        {
+            if (isMoving && !footstepSource.isPlaying)
+            {
+                footstepSource.Play();
+            }
+            else if (!isMoving && footstepSource.isPlaying)
+            {
+                // isMoving이 아니게 되면 정지합니다. (픽업 애니메이션이 끝나면 다시 isMoving이 될 수 있음)
+                footstepSource.Stop();
+            }
+        }
+        // ★★★ 발소리 재생 로직 끝 ★★★
+
 
         if (killLineEnabled && IsBelowKillLineNow())
         {
@@ -312,6 +379,21 @@ public class PlayerController : MonoBehaviour
         rb.velocity = v;
 
         jumpUngroundUntil = Time.time + 0.08f;
+
+        // ★★★ 점프 사운드 재생 로직 수정 (sfxSource 사용 및 볼륨 인자 추가) ★★★
+        if (sfxSource != null)
+        {
+            if (isDouble)
+            {
+                if (jumpSound2 != null) sfxSource.PlayOneShot(jumpSound2, jumpSfxVolume); // jumpSfxVolume 사용
+            }
+            else
+            {
+                if (jumpSound1 != null) sfxSource.PlayOneShot(jumpSound1, jumpSfxVolume); // jumpSfxVolume 사용
+            }
+        }
+        // ★★★ 점프 사운드 재생 로직 수정 끝 ★★★
+
 
         if (isDouble)
         {
@@ -419,7 +501,7 @@ public class PlayerController : MonoBehaviour
 
     void DetachFromPlatform()
     {
-        // ★★★ Transform SetParent(null) 로직 복구
+        // Transform SetParent(null) 로직 복구
         if (transform.parent != null)
             transform.SetParent(null, true);
 
@@ -438,13 +520,14 @@ public class PlayerController : MonoBehaviour
             groundContacts++;
             lastGroundedTime = Time.time;
 
-            // ★★★ Parenting 로직 ★★★
+            // Transform Parenting 로직: 충돌한 오브젝트를 바로 부모로 설정
             var mp = collision.collider.GetComponentInParent<MovingPlatform2D>();
 
             if (mp != null && currentPlatform == null)
             {
                 currentPlatform = mp.transform;
-                transform.SetParent(currentPlatform, true);
+                // 플레이어의 부모를 충돌한 그 GameObject로 설정합니다.
+                transform.SetParent(collision.gameObject.transform, true);
             }
 
             return;
@@ -472,7 +555,7 @@ public class PlayerController : MonoBehaviour
             if (mp != null && currentPlatform == null)
             {
                 currentPlatform = mp.transform;
-                transform.SetParent(currentPlatform, true);
+                transform.SetParent(collision.gameObject.transform, true);
             }
         }
     }
@@ -485,9 +568,11 @@ public class PlayerController : MonoBehaviour
 
             // 나가는 콜라이더가 현재 플랫폼이라면 부모 해제
             var leftRoot = collision.collider.GetComponentInParent<Transform>();
-            if (currentPlatform != null && leftRoot != null && leftRoot == currentPlatform)
+            if (currentPlatform != null && leftRoot != null && leftRoot.IsChildOf(currentPlatform))
             {
-                DetachFromPlatform();
+                // collision.gameObject가 현재 플레이어의 부모일 경우에만 해제
+                if (collision.gameObject.transform == transform.parent)
+                    DetachFromPlatform();
             }
         }
     }

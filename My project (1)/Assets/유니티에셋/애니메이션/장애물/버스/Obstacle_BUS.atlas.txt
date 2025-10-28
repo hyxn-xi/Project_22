@@ -1,0 +1,15 @@
+Obstacle_BUS.png
+size:335,118
+filter:Linear,Linear
+pma:true
+그레이디언트 칠 1
+bounds:290,42,74,43
+offsets:17,1,92,45
+rotate:90
+그레이디언트 칠 2
+bounds:290,2,38,43
+offsets:53,1,92,45
+rotate:90
+레이어 1
+bounds:2,8,286,108
+offsets:1,2,290,111

@@ -1,0 +1,12 @@
+Obstacle_LEAF1.png
+size:289,166
+filter:Linear,Linear
+pma:true
+Pot
+bounds:2,2,162,216
+offsets:2,1,166,219
+rotate:90
+Right
+bounds:220,51,113,67
+offsets:0,2,115,69
+rotate:90

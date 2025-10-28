@@ -1,0 +1,9 @@
+Obstacle_DRUM.png
+size:153,121
+filter:Linear,Linear
+pma:true
+Inner
+bounds:2,2,147,14
+Snear
+bounds:2,18,149,101
+offsets:1,1,151,103

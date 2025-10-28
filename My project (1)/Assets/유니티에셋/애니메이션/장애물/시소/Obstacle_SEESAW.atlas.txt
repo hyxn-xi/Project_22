@@ -1,0 +1,11 @@
+Obstacle_SEESAW.png
+size:500,221
+filter:Linear,Linear
+pma:true
+Body
+bounds:412,2,217,86
+offsets:1,2,223,90
+rotate:90
+Main
+bounds:2,39,408,180
+offsets:1,2,410,183

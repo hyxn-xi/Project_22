@@ -19,16 +19,34 @@ public class AutoBounceSurface2D : MonoBehaviour
     [Header("Spam guard")]
     public float rehitCooldown = 0.08f;
 
+    // ★★★ Bounce Animation 필드 추가 ★★★
+    [Header("Bounce Animation")]
+    public Animator bounceAnimator; // 짐볼 오브젝트의 Animator 컴포넌트
+    public string bounceTriggerName = "Hit"; // Animator에 설정한 Trigger 이름 (예: Hit)
+    // ★★★ Bounce Animation 필드 추가 끝 ★★★
+
     [Header("Debug")]
     public bool verbose = false;
 
     readonly HashSet<Rigidbody2D> _cooldown = new HashSet<Rigidbody2D>();
     Collider2D _myCol;
 
-    void Awake() { _myCol = GetComponent<Collider2D>(); }
+    // ★★★ Trigger Hash 캐싱용 변수 추가 ★★★
+    private int _triggerHash;
+
+    void Awake()
+    {
+        _myCol = GetComponent<Collider2D>();
+
+        // ★★★ Awake에서 Trigger Hash 캐싱 ★★★
+        if (bounceAnimator != null && !string.IsNullOrEmpty(bounceTriggerName))
+        {
+            _triggerHash = Animator.StringToHash(bounceTriggerName);
+        }
+    }
 
     void OnCollisionEnter2D(Collision2D c) => TryBounce(c.collider, c);
-    void OnCollisionStay2D(Collision2D c) => TryBounce(c.collider, c);   // 느린 접촉 보강
+    void OnCollisionStay2D(Collision2D c) => TryBounce(c.collider, c);    // 느린 접촉 보강
     void OnTriggerEnter2D(Collider2D other) => TryBounce(other, null);
 
     void TryBounce(Collider2D other, Collision2D col)
@@ -46,6 +64,13 @@ public class AutoBounceSurface2D : MonoBehaviour
         var v = rb.velocity;
         if (v.y < bounceVelocity) v.y = bounceVelocity;
         rb.velocity = new Vector2(v.x, v.y);
+
+        // ★★★ 애니메이션 실행 로직 추가 ★★★
+        if (bounceAnimator != null && _triggerHash != 0)
+        {
+            bounceAnimator.SetTrigger(_triggerHash);
+        }
+        // ★★★ 애니메이션 실행 로직 추가 끝 ★★★
 
         if (verbose) Debug.Log($"[AutoBounce] {other.name} -> v.y={rb.velocity.y}");
 

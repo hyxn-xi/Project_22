@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System; // Action 사용을 위해 필요
 
 public class TypingDialogueWithPopup : MonoBehaviour
 {
@@ -33,11 +34,15 @@ public class TypingDialogueWithPopup : MonoBehaviour
     [Header("Scene Transition")]
     public string nextSceneName = "1-1";
 
+    // ★★★ 외부에서 주입할 콜백 (이 함수가 호출된 후 씬 전환이 발생함) ★★★
+    [Header("External Hook")]
+    public Action onEndSequence;
+
     // -------- Portrait (내장 크로스페이드) --------
     [Header("Portrait (optional, 두 장을 같은 위치로 겹치기)")]
     public Image portraitFront;        // 현재 보이는 Image
     public Image portraitBack;         // 다음 그림을 띄울 Image
-    public Sprite[] linePortraits;     // 줄 번호에 맞춰 넣기(부족해도 OK)
+    public Sprite[] linePortraits;      // 줄 번호에 맞춰 넣기(부족해도 OK)
     public float portraitFade = 0.12f; // 교체 속도
     public bool portraitUseNativeSize = false; // false면 오브젝트 크기 유지(추천)
     public bool portraitPreserveAspect = true; // 비율 유지
@@ -60,7 +65,7 @@ public class TypingDialogueWithPopup : MonoBehaviour
         if (dimBackground) dimBackground.SetActive(false);
         if (dialoguePanel) dialoguePanel.SetActive(true);
 
-        InitPortrait();                 // 초상화 준비
+        InitPortrait();         // 초상화 준비
         ApplyPortraitForLine(0, true);  // 첫 줄은 즉시 표시
 
         if (lines != null && lines.Length > 0)
@@ -124,6 +129,7 @@ public class TypingDialogueWithPopup : MonoBehaviour
 
         if (!cameraMoved && currentLine == cameraMoveLineIndex && cameraTarget)
         {
+            // 이 코루틴은 내부적으로 EndSequence()를 호출하므로, 여기를 타면 씬 전환이 일어남
             StartCoroutine(MoveCameraTo(cameraTransform, cameraTarget, cameraMoveDuration));
             cameraMoved = true;
         }
@@ -160,14 +166,22 @@ public class TypingDialogueWithPopup : MonoBehaviour
 
     IEnumerator EndSequence()
     {
+        // ★★★ 1. 외부 콜백 호출: Director가 주입한 데이터 저장/처리 로직 실행 ★★★
+        onEndSequence?.Invoke();
+
         if (dialoguePanel) dialoguePanel.SetActive(false);
         yield return new WaitForSeconds(0.1f);
 
         EnsureSceneTransitionManager();
 
-        if (SceneTransitionManager.Instance != null)
+        if (SceneTransitionManager.Instance != null && !string.IsNullOrEmpty(nextSceneName))
         {
+            // nextSceneName이 비어있지 않을 때만 씬 전환 실행 (Director에서 제어)
             SceneTransitionManager.Instance.StartSceneTransition(nextSceneName);
+        }
+        else if (string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.Log("[Dialogue] 씬 전환 이름이 없어 자동 전환을 건너뜀 (외부 Director 제어)");
         }
         else
         {
@@ -255,7 +269,7 @@ public class TypingDialogueWithPopup : MonoBehaviour
 
         while (t < dur)
         {
-            t += Time.unscaledDeltaTime;          // 일시정지 중에도 자연스럽게
+            t += Time.unscaledDeltaTime;        // 일시정지 중에도 자연스럽게
             float a = Mathf.Clamp01(t / dur);
             cf.a = 1f - a;
             cb.a = a;

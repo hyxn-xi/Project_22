@@ -889,6 +889,14 @@ MonoBehaviour:
   killOnlyWhenAirborne: 1
   killGrace: 0.08
   HP: 2
+  footstepSource: {fileID: 0}
+  footstepClip: {fileID: 0}
+  sfxSource: {fileID: 0}
+  jumpSound1: {fileID: 0}
+  jumpSound2: {fileID: 0}
+  landingSound: {fileID: 0}
+  jumpSfxVolume: 0.5
+  landingSfxVolume: 0.6
   groundLayer:
     serializedVersion: 2
     m_Bits: 1536
@@ -1099,7 +1107,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 3
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &425388843
 MeshFilter:

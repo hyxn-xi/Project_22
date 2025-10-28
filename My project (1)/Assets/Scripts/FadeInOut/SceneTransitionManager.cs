@@ -21,7 +21,11 @@ public class SceneTransitionManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded; // ✅ 씬 로드 이벤트 등록
+
+            if (fadeOverlay != null)
+                DontDestroyOnLoad(fadeOverlay.gameObject); // ✅ 페이드 오버레이 유지
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
             Debug.Log("✅ SceneTransitionManager 인스턴스 설정됨 — DontDestroyOnLoad 적용됨");
         }
         else if (Instance != this)
@@ -35,29 +39,23 @@ public class SceneTransitionManager : MonoBehaviour
     {
         if (Instance == this)
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded; // ✅ 이벤트 해제
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
 
-    /// <summary>
-    /// 씬 로드 완료 시 자동 페이드인 실행
-    /// </summary>
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"🟢 씬 로드 완료: {scene.name} — 자동 페이드인 시작");
 
-        // 새 씬의 fadeOverlay 다시 연결
-        fadeOverlay = GameObject.Find("FadeOverlay")?.GetComponent<Image>();
         if (fadeOverlay == null)
         {
-            Debug.LogWarning("⚠ 새 씬에서 fadeOverlay를 찾지 못함 — 페이드 불가");
+            Debug.LogWarning("⚠ fadeOverlay가 연결되지 않았습니다 — 페이드 불가");
             return;
         }
 
-        fadeOverlay.gameObject.SetActive(true); // ✅ 씬 로드 후 강제 활성화
+        fadeOverlay.gameObject.SetActive(true);
         StartFadeIn(currentFadeDuration);
     }
-
 
     public void StartSceneTransition(string sceneName, float fadeDuration = -1f, bool useFade = true)
     {
@@ -87,7 +85,7 @@ public class SceneTransitionManager : MonoBehaviour
     {
         Debug.Log($"▶ 페이드아웃 시작: {sceneName}");
 
-        yield return null; // ✅ 한 프레임 기다려서 렌더링 보장
+        yield return null;
 
         Color c = fadeOverlay.color;
         c.a = 0f;

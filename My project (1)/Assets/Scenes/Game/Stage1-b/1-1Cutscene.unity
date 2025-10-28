@@ -642,7 +642,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1322996337}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 99431f28e4b166548964ac64a6d414b0, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: f0dc0d2fa4793f94184638cf9ae1361c, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -720,10 +720,18 @@ MonoBehaviour:
   - text: "... \uADF8 \uB0A0, \uC6B8\uB9AC\uB358 \uC804\uD654 \uBCA8\uC774 .."
     speakerName: Dad
     isLeftSide: 1
+    portrait: {fileID: 0}
   - text: "... \uC544\uC9C1\uB3C4 \uADC0\uC5D0 \uB9F4\uB3CC\uC544."
     speakerName: Dad
     isLeftSide: 1
+    portrait: {fileID: 0}
   typingSpeed: 0.05
+  portraitFront: {fileID: 0}
+  portraitBack: {fileID: 0}
+  portraitFade: 0.12
+  portraitPreserveAspect: 1
+  defaultPortrait: {fileID: 0}
+  dialogueGroupContainer: {fileID: 0}
 --- !u!4 &1603263638
 Transform:
   m_ObjectHideFlags: 0

@@ -8,8 +8,8 @@ public class NPCInteraction : MonoBehaviour
     public Transform player;   // 씬의 Player 오브젝트 Transform
 
     [Header("Dialogue System Reference")]
-    public TypingDialougeSimple dialogueManager; // 대사 관리 스크립트 (필수 연결)
-    public GameObject dialoguePanel;             // 대화 UI 전체 패널 오브젝트 (필수 연결)
+    public DialogueGate dialogueManager; // DialogueGate 타입
+    public GameObject dialoguePanel;            // 대화 UI 전체 패널 오브젝트 (필수 연결)
 
     private bool isDialogueRunning = false; // 대화 중인지 상태를 추적 (F키 오동작 방지)
 
@@ -36,6 +36,9 @@ public class NPCInteraction : MonoBehaviour
     [Header("Interaction Zones 설정")]
     public InteractionZone[] zones;
 
+    // F 키 연속 입력 방지용 필드 (두 번 열림 문제 직전에는 이 필드가 없었거나 사용되지 않았습니다.)
+    // 복잡성 때문에 이 필드를 제거하고 Update를 원래대로 복구합니다.
+
     private void Start()
     {
         // 시작 시 모든 아이콘 숨기기
@@ -55,11 +58,7 @@ public class NPCInteraction : MonoBehaviour
         // 대화 중일 때는 다른 상호작용을 막고, F키로 대화 종료를 처리합니다.
         if (isDialogueRunning)
         {
-            // ★★★ 수정: F 키를 통한 UI 닫기 로직 제거 ★★★
-            // 이제 TypingDialougeSimple에서 EndDialogue()가 호출될 때 직접 EndInteraction()을 호출합니다.
-
-            // IsDialogueFinished()가 true라면, 이는 이미 EndInteraction이 호출되었거나 호출될 예정임을 의미합니다.
-            // 다른 상호작용을 막기 위해 return만 유지합니다.
+            // 이 시점에서 TypingDialogueSimple이 EndDialogue()를 통해 UI를 닫고 상태를 해제해야 합니다.
             return;
         }
 
@@ -88,12 +87,10 @@ public class NPCInteraction : MonoBehaviour
             {
                 if (z.isCleared)
                 {
-                    // 클리어 상태일 때: NPC 고유 대화 목록 재생
                     StartDialogueInteraction(z);
                 }
                 else
                 {
-                    // 미클리어 상태일 때: 씬 전환
                     TrySceneTransition(z.initialSceneName);
                 }
                 break;
@@ -109,23 +106,15 @@ public class NPCInteraction : MonoBehaviour
             return;
         }
 
-        // 1. 대화 상태 플래그 설정
         isDialogueRunning = true;
-
-        // 2. 대화 UI 활성화
         dialoguePanel.SetActive(true);
 
-        // 3. 대화 시작 (새로운 대화 목록 및 속도 설정)
         if (z.clearedDialogueLines != null && z.clearedDialogueLines.Count > 0)
         {
-            // ★★★ TypingDialougeSimple에 'this' (자신)를 전달합니다. ★★★
-            dialogueManager.StartNewDialogue(z.clearedDialogueLines, z.dialogueStartPortrait, this);
+            // DialogueGate의 StartDialogue 함수를 호출합니다.
+            dialogueManager.StartDialogue(z.clearedDialogueLines, this);
 
-            // TypingDialougeSimple의 현재 설정된 속도를 가져와서 다시 설정합니다.
-            if (dialogueManager.typingSpeed > 0)
-            {
-                dialogueManager.SetTypingSpeed(dialogueManager.typingSpeed);
-            }
+            // (DialogueGate는 타이핑 속도 설정 로직을 자체적으로 처리합니다.)
         }
         else
         {
@@ -133,17 +122,16 @@ public class NPCInteraction : MonoBehaviour
             EndInteraction();
         }
 
-        // 4. 상호작용 아이콘 숨기기
         if (z.interactionIcon != null) z.interactionIcon.SetActive(false);
     }
 
     // 대화 종료 함수 (UI 끄기)
     public void EndInteraction()
     {
-        // 1. 대화 UI 비활성화
+        // 1. 전체 Dialogue Panel 비활성화 
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
 
-        // 2. 대화 상태 플래그 해제
+        // 2. 대화 상태 플래그 해제 (가장 중요)
         isDialogueRunning = false;
 
         Debug.Log("대화 종료 및 UI 닫힘.");

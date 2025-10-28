@@ -1,0 +1,16 @@
+Obstacle_CAR.png
+size:193,187
+filter:Linear,Linear
+pma:true
+Body
+bounds:2,2,172,126
+offsets:1,1,174,128
+FrontWheel
+bounds:2,133,52,52
+offsets:1,1,54,54
+RearWheel
+bounds:2,133,52,52
+offsets:1,1,54,54
+Light
+bounds:56,130,135,55
+offsets:1,12,153,68

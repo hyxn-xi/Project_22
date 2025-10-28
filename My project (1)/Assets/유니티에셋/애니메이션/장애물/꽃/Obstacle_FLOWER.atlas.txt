@@ -1,0 +1,7 @@
+Obstacle_FLOWER.png
+size:77,114
+filter:Linear,Linear
+pma:true
+Flower
+bounds:2,2,73,110
+offsets:1,1,74,112

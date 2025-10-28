@@ -1,0 +1,12 @@
+Obstacle_LEAF2.png
+size:230,143
+filter:Linear,Linear
+pma:true
+Leaf
+bounds:155,50,91,73
+offsets:18,6,119,81
+rotate:90
+Pot
+bounds:2,2,139,151
+offsets:2,2,143,155
+rotate:90

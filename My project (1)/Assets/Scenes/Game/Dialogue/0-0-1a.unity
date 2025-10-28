@@ -800,13 +800,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b09283a44ea53884d89375f33ebbc1b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 0}
+  playOnStart: 1
+  pauseVideoOnDialogue: 1
+  delayBeforeDialogue: 5
   dialogue: {fileID: 1850202393}
-  line1: "\uC774\uC81C \uC800 \uC544\uC800\uC528\uB294 \uAD1C\uCC2E\uC740 \uAC83
-    \uAC19\uC544. \uC0C9\uC774 \uB2E4\uC2DC \uB3CC\uC544\uC654\uC5B4."
-  line2: ".. \uC774\uC81C\uB294 \uC800 \uC544\uC90C\uB9C8\uB97C \uB3C4\uC640\uC918\uC57C
-    \uB420 \uAC83 \uAC19\uC544. \n\uB9C8\uC74C\uC774 \uB108\uBB34 \uC544\uD30C \uBCF4\uC5EC."
-  advanceKey: 102
   nextSceneName: GameScene-1a
+  isFinalStageClearScene: 0
+  hideUntilDialogue: []
   cam: {fileID: 940234322}
   dadFocus: {fileID: 212221264}
   momFocus: {fileID: 103222143}
@@ -816,6 +817,11 @@ MonoBehaviour:
   orthoZoomSize: 2.5
   perspectiveFOV: 30
   cameraFollowToDisable: {fileID: 0}
+  line1: "\uC774\uC81C \uC800 \uC544\uC800\uC528\uB294 \uAD1C\uCC2E\uC740 \uAC83
+    \uAC19\uC544. \uC0C9\uC774 \uB2E4\uC2DC \uB3CC\uC544\uC654\uC5B4."
+  line2: ".. \uC774\uC81C\uB294 \uC800 \uC544\uC90C\uB9C8\uB97C \uB3C4\uC640\uC918\uC57C
+    \uB420 \uAC83 \uAC19\uC544. \n\uB9C8\uC74C\uC774 \uB108\uBB34 \uC544\uD30C \uBCF4\uC5EC."
+  advanceKey: 102
 --- !u!1 &391145273
 GameObject:
   m_ObjectHideFlags: 0
@@ -2084,6 +2090,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1850202394}
   - component: {fileID: 1850202393}
+  - component: {fileID: 1850202395}
   m_Layer: 0
   m_Name: TypingDialougeWithPopup
   m_TagString: Untagged
@@ -2105,25 +2112,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueText: {fileID: 285663421}
   dialoguePanel: {fileID: 391145273}
-  lines:
-  - "... \uC5EC\uAE30\uAC00 \uC5B4\uB514\uC9C0? \uB0AF\uC124\uC5B4 ...\n\uCC28\uAC00\uC6B4
-    \uACF5\uAE30 ... \uADF8\uB9AC\uACE0 ... \uC870\uC6A9\uD574."
-  - "\uBA38\uB9AC\uAC00 \uC544\uD30C. \uC544\uBB34\uAC83\uB3C4 \uAE30\uC5B5\uB098\uC9C0
-    \uC54A\uC544."
-  - "\uB0B4 \uC774\uB984\uC774 \uBB50\uC600\uC9C0 ...? \uB098\uB294 ... \uB204\uAD6C\uC9C0?"
-  - "\uC0AC\uC9C4\uC774 \uC788\uC5B4... \uC0AC\uC9C4 \uC18D \uC138 \uC0AC\uB78C ...
-    \uC5B4\uB518\uAC00 \uC2AC\uD37C \uBCF4\uC5EC."
-  - "\uC774\uC0C1\uD574, \uC138 \uC0AC\uB78C \uBAA8\uB450 ... \uC5B4\uB450\uC6B4
-    \uC0C9\uC73C\uB85C \uBB3C\uB4E4\uC5B4 \uBCF4\uC5EC."
-  - "\uB098... \uAC10\uC815\uC758 \uC0C9\uC744 \uBCFC \uC218 \uC788\uB294 \uAC70\uC57C?"
-  - "\uC800 \uC0C9\uC774 \uBB34\uC2A8 \uB73B\uC778\uC9C0 \uBAA8\uB974\uACA0\uC9C0\uB9CC
-    ... \uB108\uBB34 \uC5B4\uB450\uC6CC."
-  - "\uC774 \uAC00\uC871\uB4E4\uC744 \uB3C4\uC640\uC57C \uD560 \uAC83 \uAC19\uC544.\n\uC774\uC720\uB294
-    \uBAA8\uB974\uACA0\uC9C0\uB9CC ... \uADF8\uB0E5 \uADF8\uB807\uAC8C \uB290\uAEF4\uC838."
-  - "\uAC00\uC871\uB4E4\uC758 \uB9C8\uC74C \uC18D\uC73C\uB85C \uB4E4\uC5B4\uAC00\uBA74
-    ... \uC54C \uC218 \uC788\uC744\uC9C0\uB3C4 \uBAB0\uB77C.\n\uB0B4\uAC00 \uB204\uAD6C\uC778\uC9C0,
-    \uC65C \uC5EC\uAE30 \uC788\uB294\uC9C0."
-  - "\uC77C\uB2E8 \uC800 \uC544\uC800\uC528\uBD80\uD130 \uB3C4\uC640\uC8FC\uC790."
+  lines: []
   nextKey: 102
   typingSpeed: 0.05
   lineBreakDelay: 0.3
@@ -2135,7 +2124,7 @@ MonoBehaviour:
   cameraTarget: {fileID: 0}
   cameraMoveDuration: 0
   cameraMoveLineIndex: 0
-  nextSceneName: 
+  nextSceneName: GameScene-1a
   portraitFront: {fileID: 99544114}
   portraitBack: {fileID: 2113612866}
   linePortraits:
@@ -2159,6 +2148,40 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1866545872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1850202395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850202392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09283a44ea53884d89375f33ebbc1b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 0}
+  playOnStart: 1
+  pauseVideoOnDialogue: 1
+  delayBeforeDialogue: 0
+  dialogue: {fileID: 1850202393}
+  nextSceneName: GameScene-1a
+  isFinalStageClearScene: 1
+  hideUntilDialogue: []
+  cam: {fileID: 940234322}
+  dadFocus: {fileID: 212221264}
+  momFocus: {fileID: 103222143}
+  zoomInTime: 1.2
+  holdTime: 0.8
+  zoomOutTime: 1.2
+  orthoZoomSize: 2.5
+  perspectiveFOV: 30
+  cameraFollowToDisable: {fileID: 2118347298}
+  line1: "\uC774\uC81C \uC800 \uC544\uC800\uC528\uB294 \uAD1C\uCC2E\uC740 \uAC83
+    \uAC19\uC544. \uC0C9\uC774 \uB2E4\uC2DC \uB3CC\uC544\uC654\uC5B4."
+  line2: "..\uC774\uC81C\uB294 \uC800 \uC544\uC90C\uB9C8\uB97C \uB3C4\uC640\uC918\uC57C
+    \uB420 \uAC83 \uAC19\uC544. \uB9C8\uC74C\uC774 \uB108\uBB34 \uC544\uD30C \uBCF4\uC5EC."
+  advanceKey: 102
 --- !u!1 &1866545871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2193,6 +2216,7 @@ Transform:
   - {fileID: 1682285718}
   - {fileID: 322494098}
   - {fileID: 103222143}
+  - {fileID: 2118347299}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2113612865
@@ -2270,6 +2294,37 @@ RectTransform:
   m_AnchoredPosition: {x: -739.36, y: -355}
   m_SizeDelta: {x: 330.6952, y: 494.4563}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2118347298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2118347299}
+  m_Layer: 0
+  m_Name: momfocus (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2118347299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2118347298}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.7, y: -1.84, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1866545872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

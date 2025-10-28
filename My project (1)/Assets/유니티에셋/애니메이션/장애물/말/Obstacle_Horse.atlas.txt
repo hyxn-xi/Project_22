@@ -1,0 +1,7 @@
+Obstacle_Horse.png
+size:202,187
+filter:Linear,Linear
+pma:true
+레이어 1
+bounds:2,2,198,183
+offsets:2,2,202,186

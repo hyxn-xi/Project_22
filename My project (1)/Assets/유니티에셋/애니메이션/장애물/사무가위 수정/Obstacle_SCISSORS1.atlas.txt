@@ -1,0 +1,10 @@
+Obstacle_SCISSORS1.png
+size:328,283
+filter:Linear,Linear
+pma:true
+Front
+bounds:2,139,321,142
+offsets:2,1,325,144
+Rear
+bounds:2,2,324,135
+offsets:1,1,327,137
