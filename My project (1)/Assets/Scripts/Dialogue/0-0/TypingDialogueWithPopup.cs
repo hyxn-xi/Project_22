@@ -128,7 +128,7 @@ public class TypingDialogueWithPopup : MonoBehaviour
             cameraMoved = true;
         }
 
-        // ★ 줄 바뀔 때 초상화 부드럽게 교체
+        // 줄 바뀔 때 초상화 교체
         ApplyPortraitForLine(currentLine, false);
 
         if (currentLine < lines.Length)

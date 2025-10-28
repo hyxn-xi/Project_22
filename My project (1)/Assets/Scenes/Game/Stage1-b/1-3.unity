@@ -2569,7 +2569,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -831, y: 489.30322}
+  m_AnchoredPosition: {x: -834, y: 489.30322}
   m_SizeDelta: {x: 95.142944, y: 74.39368}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &370406396
@@ -6684,29 +6684,37 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 376
     m_Data: {fileID: 11400000, guid: 19fe08ea773ffa64eac49af0b840e57a, type: 2}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 376
     m_Data: {fileID: -737173800619520321, guid: c9c41a2dc84e09141ac3611830d63027, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileMatrixArray:
   - m_RefCount: 0
     m_Data:
-      e00: -0.00002643111
+      e00: 1.547238e-17
       e01: NaN
-      e02: 1.4538642e-18
+      e02: 1556.4199
       e03: 0
-      e10: 9.8e-44
-      e11: 3.1e-44
+      e10: 2.33e-43
+      e11: NaN
       e12: 4.5911e-41
       e13: 0
       e20: 4.5e-44
       e21: 0
-      e22: -0.00002643108
+      e22: 1.5472354e-17
       e23: 0
       e30: 0
       e31: 7.34684e-40
-      e32: 9.8e-44
+      e32: 2.33e-43
       e33: 1
   - m_RefCount: 376
     m_Data:
@@ -6728,22 +6736,22 @@ Tilemap:
       e33: 1
   - m_RefCount: 0
     m_Data:
-      e00: 1.423174e+30
-      e01: 8.5e-44
-      e02: -7.760001e+15
-      e03: 0
-      e10: 1.04e-43
-      e11: NaN
-      e12: 4.5915e-41
-      e13: 0
-      e20: 4.5e-44
-      e21: 0
-      e22: 1.4231717e+30
-      e23: 0
-      e30: 0
-      e31: 7.34684e-40
-      e32: 1.04e-43
-      e33: 1
+      e00: 2.35e-43
+      e01: 0
+      e02: 1e-45
+      e03: 1.6643015e+10
+      e10: 0
+      e11: 0
+      e12: 0
+      e13: 7.33e-43
+      e20: 1556.4199
+      e21: 1.6643015e+10
+      e22: -0.13020515
+      e23: -1.9892555e-28
+      e30: 4.5911e-41
+      e31: 7.33e-43
+      e32: 7.33e-43
+      e33: 7.33e-43
   m_TileColorArray:
   - m_RefCount: 376
     m_Data: {r: 1, g: 1, b: 1, a: 1}
@@ -14660,7 +14668,6 @@ MonoBehaviour:
   deadAnimMinWait: 0.15
   deadAnimTimeout: 2.5
   debugAnim: 0
-  move: {fileID: 0}
 --- !u!70 &1724297849
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

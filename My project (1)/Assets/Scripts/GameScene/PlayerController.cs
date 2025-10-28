@@ -54,15 +54,15 @@ public class PlayerController : MonoBehaviour
     int groundContacts = 0;
 
     [Header("Moving Platform Ride")]
-    public bool ridePlatforms = true;                   
-    public bool alwaysIdleOnPlatforms = true;           // 무빙플랫폼 위에선 Walk 끄기
-    public bool treatMovingPlatformAsGround = true;     // 무빙플랫폼을 '지면'으로 인정
-    Transform currentPlatform = null;
-    Rigidbody2D currentPlatformRB = null;               
+    public bool ridePlatforms = true;
+    public bool alwaysIdleOnPlatforms = true;
+    public bool treatMovingPlatformAsGround = true;
+    Transform currentPlatform = null; // 부모 Transform 저장용
+    Rigidbody2D currentPlatformRB = null;
     Vector2 lastPlatformRBPos;
-    Vector3 lastPlatformPos;                           
+    Vector3 lastPlatformPos;
     Vector2 platformVelocity = Vector2.zero;
-    bool onMovingPlatformGround = false;                // 발 밑이 무빙플랫폼인지
+    bool onMovingPlatformGround = false;
 
     [Header("Pickup & Scene")]
     public string nextSceneName = "";
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour
     [Header("Pickup Debounce (애니 1회 보장)")]
     public float pickupCooldown = 0.15f;
     float _pickupBlockUntil = -1f;
-    bool _pickupAnimPlayed = false;                     // 동일 씬에서 1회만
+    bool _pickupAnimPlayed = false;
 
     [Header("Hit Detection")]
     [SerializeField] LayerMask obstacleLayers;
@@ -91,10 +91,10 @@ public class PlayerController : MonoBehaviour
     public int maxJumpCount = 2;
 
     [Header("Game Over Hook")]
-    public GameOverController gameOver;          // 씬의 GameOverController (비워두면 자동 검색)
-    public bool useDeadAnimEvent = false;        // 데드 애니메이션 이벤트로만 호출할지 여부
-    public float deadAnimMinWait = 0.15f;        // 최소 대기
-    public float deadAnimTimeout = 2.5f;         // 타임아웃
+    public GameOverController gameOver;
+    public bool useDeadAnimEvent = false;
+    public float deadAnimMinWait = 0.15f;
+    public float deadAnimTimeout = 2.5f;
     bool _gameOverFired = false;
 
     [Header("Debug")]
@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
 
     // --- State
     float moveInput;
-    int pendingFaceDir = 1; // Update에서 결정 → FixedUpdate에서만 적용
+    int pendingFaceDir = 1;
     bool isDead = false;
     bool pickupLock = false;
 
@@ -120,8 +120,6 @@ public class PlayerController : MonoBehaviour
     float lastGroundedTime = -999f;
     float landingHoldUntil = -1f;
     bool invulnHit = false;
-
-    public GameObject move;
 
     // 점프 직후 1~2프레임 강제 공중
     float jumpUngroundUntil = -1f;
@@ -164,7 +162,7 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         if (groundLayer.value == 0) groundLayer = LayerMask.GetMask("Ground");
 
-        // 렌더 보간 권장 (덜그럭거림 방지)
+        // 렌더 보간 권장
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
         if (!gameOver)
@@ -213,7 +211,6 @@ public class PlayerController : MonoBehaviour
         // 점프 입력
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // ★ 점프 시 부모 관계 해제
             if (currentPlatform != null) DetachFromPlatform();
 
             bool canFirst = (isGrounded || Time.time - lastGroundedTime <= coyoteTime) && jumpCount == 0;
@@ -225,48 +222,32 @@ public class PlayerController : MonoBehaviour
     }
 
     void FixedUpdate()
-{
-    if (isDead || pickupLock) return;
-
-    // ★★★ 수정: s와 abs 변수를 블록 바깥에서 먼저 선언합니다.
-    var s = transform.localScale;
-    float abs = Mathf.Abs(s.x);
-
-    // ★★★ 핵심 수정: 플랫폼 위에 있을 때는 모든 물리 계산을 멈춥니다.
-    if (currentPlatform != null)
     {
-        // 1) Rigidbody Velocity 조작 중단: (Rigidbody가 부모를 따라가는 것에 집중)
-        // 2) Rigidbody Position 클램프 중단: (rb.position 조작 중단)
+        if (isDead || pickupLock) return;
 
-        // 3) 방향(스케일X) 반영만 허용
+        // 변수 선언
+        var s = transform.localScale;
+        float abs = Mathf.Abs(s.x);
+
+        // 4) 방향(스케일X) 반영 — FixedUpdate에서만 Transform 수정
         s.x = abs * (pendingFaceDir >= 0 ? 1f : -1f);
         transform.localScale = s;
-        
-        return; // ★ 플랫폼 위에선 여기서 FixedUpdate를 종료하고 Transform에게 제어를 넘김
+
+        // 1) 수평 속도
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+
+        // 착지 연출 중엔 강제로 정지
+        if (freezeHorizontalOnLanding && Time.time < landingHoldUntil)
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+
+        // 2) 델타 이동 로직은 Transform Parenting 방식에서는 제거합니다.
+        platformVelocity = Vector2.zero;
+
+        // 3) 월드 경계 X 클램프
+        var pos = rb.position;
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        rb.position = pos; // Rigidbody 위치 확정
     }
-
-
-    // --- [ 플랫폼 위에 없을 때만 아래 로직 실행 ] ---
-
-    // 1) 수평 속도
-    rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-
-    // 착지 연출 중엔 강제로 정지
-    if (freezeHorizontalOnLanding && Time.time < landingHoldUntil)
-        rb.velocity = new Vector2(0f, rb.velocity.y);
-
-    // 2) 무빙 플랫폼 델타 로직은 부모 방식에서 제거됩니다.
-    platformVelocity = Vector2.zero; 
-
-    // 3) 월드 경계 X 클램프
-    var pos = rb.position;
-    pos.x = Mathf.Clamp(pos.x, minX, maxX);
-    rb.position = pos;
-
-    // 4) 방향(스케일X) 반영 — FixedUpdate에서만 Transform 수정
-    s.x = abs * (pendingFaceDir >= 0 ? 1f : -1f);
-    transform.localScale = s;
-}
 
     void LateUpdate()
     {
@@ -277,8 +258,8 @@ public class PlayerController : MonoBehaviour
         float walkSpeed = Mathf.Abs(rb.velocity.x);
         float animSpeed = walkSpeed;
 
-        // ★ 발밑이 무빙플랫폼일 때만 Idle 고정 (부모-자식 관계에서는 currentPlatform 확인)
-        if (alwaysIdleOnPlatforms && isGrounded && currentPlatform != null) 
+        // ★ 발밑이 무빙플랫폼일 때만 Idle 고정
+        if (alwaysIdleOnPlatforms && isGrounded && currentPlatform != null)
             animSpeed = 0f;
 
         SafeSetFloat(SpeedHash, animSpeed);
@@ -309,8 +290,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // isGrounded가 false인데 부모 관계가 남아있으면 해제합니다.
-        if (!isGrounded && currentPlatform != null)
-            DetachFromPlatform();
+        if (!isGrounded && currentPlatform != null) DetachFromPlatform();
 
         wasGrounded = isGrounded;
         wasFalling = isFalling;
@@ -387,7 +367,7 @@ public class PlayerController : MonoBehaviour
         isGrounded = groundedNow;
         isFalling = fallingNow;
 
-        // ★ Raycast 또는 부모 관계를 통해 플랫폼 위에 있는지 확인
+        // onMovingPlatformGround 플래그는 currentPlatform 유무로만 판단
         onMovingPlatformGround = currentPlatform != null;
     }
 
@@ -436,37 +416,37 @@ public class PlayerController : MonoBehaviour
         if (p && !string.IsNullOrEmpty(obstacleTag) && p.CompareTag(obstacleTag)) return true;
         return false;
     }
-    
+
     void DetachFromPlatform()
     {
+        // ★★★ Transform SetParent(null) 로직 복구
         if (transform.parent != null)
             transform.SetParent(null, true);
-        
+
         currentPlatform = null;
+        currentPlatformRB = null;
+        platformVelocity = Vector2.zero;
     }
 
-    // ======== 충돌 처리 (부모-자식 관계 로직) ========
+    // ======== 충돌 처리 (Transform Parenting 방식) ========
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (isDead) return;
-
-        // Debug.Log("Collision Entered with: " + collision.gameObject.name); 
 
         if (IsGroundCollider(collision.collider))
         {
             groundContacts++;
             lastGroundedTime = Time.time;
-            
-            // ★ 플랫폼에 부착 로직 (currentPlatform이 null일 때만 설정)
+
+            // ★★★ Parenting 로직 ★★★
             var mp = collision.collider.GetComponentInParent<MovingPlatform2D>();
-            
+
             if (mp != null && currentPlatform == null)
             {
-                currentPlatform = mp.transform; // 플랫폼 참조 저장
+                currentPlatform = mp.transform;
                 transform.SetParent(currentPlatform, true);
-                // Debug.Log("SUCCESS: Parent set to " + mp.name); 
             }
-            
+
             return;
         }
 
@@ -488,8 +468,7 @@ public class PlayerController : MonoBehaviour
         {
             // 플랫폼 위에 계속 있을 경우 부모 관계 유지 (안정화)
             var mp = collision.collider.GetComponentInParent<MovingPlatform2D>();
-            
-            // ★ 플랫폼 위에 있지만 부모가 끊어졌다면 다시 부모로 설정 (currentPlatform == null)
+
             if (mp != null && currentPlatform == null)
             {
                 currentPlatform = mp.transform;
@@ -557,14 +536,17 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // 맞았을 때 부모 관계 해제 (넉백 처리를 위해)
         if (currentPlatform != null) DetachFromPlatform();
 
         SafeSetTrigger(HitTrgHash);
         SetTriggerIfExists(A_Hit);
         StartCoroutine(ClearTriggerNextFrame(HitTrgHash, A_Hit));
 
-        // ... (화면 섬광 로직 생략) ...
+        if (useHitFlash)
+        {
+            var sf = ScreenFlash.Instance;
+            if (sf != null) sf.Flash(hitFlashColor, hitFlashFadeIn, hitFlashHold, hitFlashFadeOut);
+        }
 
         StartCoroutine(FallbackFromStateToGroundedIdle(S_Hit, hitExitNormalized, hitFallbackTimeout));
         StartCoroutine(ForceGroundedIdleOrWalk(minDelay: hitMinHold, timeout: hitFallbackTimeout));
@@ -576,9 +558,6 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-
-        // 죽을 때 부모 관계 해제
-        if (currentPlatform != null) DetachFromPlatform();
 
         if (rb)
         {
@@ -682,9 +661,6 @@ public class PlayerController : MonoBehaviour
 
         rb.velocity = Vector2.zero;
         rb.simulated = false;
-
-        // 씬 변경 전 부모 관계 해제
-        if (currentPlatform != null) DetachFromPlatform();
 
         float len = GetClipLen("PickUp", 0.6f);
         StartCoroutine(LoadSceneAfter(len + extraDelay, sceneName));
